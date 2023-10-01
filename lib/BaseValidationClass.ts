@@ -7,7 +7,7 @@ export type ArgumentObject = {
   validValueTypes?: Array<string>;
 };
 
-export type ErroneousData = {what: string, in: string, at?: -1, is?: number|string}
+export type ErroneousData = {what: string, in: string, at?: number, is?: string}
 export enum What {
   missingProperties = 'missing property',
   unexpectedProperties = 'unexpected property',

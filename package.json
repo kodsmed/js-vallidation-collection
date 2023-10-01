@@ -1,6 +1,7 @@
 {
   "name": "js-validation-collection",
   "version": "1.0.0",
+  "author": "Jimmy Karlsson",
   "description": "a collection of a wide range of validation methods for arrays, objects, numbers and strings in javascript.",
   "type": "module",
   "directories": {
@@ -10,7 +11,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --loader ts-node/esm ./testApp.js"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "ts-node": "^10.9.1"
