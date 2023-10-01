@@ -27,12 +27,18 @@ with this code:
 ```` javascript
 const objectThatMustContainXYZ = {x: 1, y: 2, z: 3, a: 9};
 
-const validator = new Validation({validProperties: ['x', 'y', 'z']});
+const validator = new Validation({validProperties: ['x', 'y', 'z'], validValues: [9, 1], maximumLength: 3});
 if(!validator.isObjectThatMustHaveProperties(objectThatMustContainXYZ)) {
   // do error handling
-  const report = validator.report();
-  const message = `${report.what} failure in ${report.in}${report.at ? ` at ${report.at} is ${report.is}` : ''}${report.expected ? ` expected ${report.expected}` : ''}`;
-  throw new Error(message); // Unexpected property failure in object at 3 is a expected x, y, z
+  const reports = validator.report();
+  for (const report in reports) {
+    const message = `${report.what} failure in ${report.in}${report.at ? ` at ${report.at}, is ${report.is},` : ''}${report.expected ? ` expected ${report.expected}` : ''}\n`;
+  }
+  throw new Error(message);
+  // Unexpected property failure in object at 3, is a expected x, y, z
+  // Unexpected value failure in object at 1, is 2, expected 9, 1
+  // Unexpected value failure in object at 2, is 3, expected 9, 1
+  // Too Long failure in object at 3, expected 2
 }
 ````
 

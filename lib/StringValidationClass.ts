@@ -1,4 +1,4 @@
-import { BaseValidationClass, ArgumentObject, What } from './BaseValidationClass.js';
+import { BaseValidationClass, ArgumentObject, What, ErroneousData } from './BaseValidationClass.js';
 
 export class StringValidationClass extends BaseValidationClass {
   constructor(argumentObject: ArgumentObject) {
@@ -8,7 +8,7 @@ export class StringValidationClass extends BaseValidationClass {
   type(unknownData: unknown): boolean {
     const result = typeof unknownData === 'string';
     if (!result) {
-      this.typeThatFailed = typeof unknownData;
+      this.problems.push({ what: What.unexpectedType, in: 'string', is: typeof unknownData, expected: 'string' });
       return false;
     }
     return true;
@@ -21,7 +21,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).includes(subString);
     if (!result) {
-      this.typeThatFailed = `string does not include ${subString}`;
+    this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `${subString} to be included` });
     }
     return result;
   }
@@ -34,8 +34,7 @@ export class StringValidationClass extends BaseValidationClass {
     result = !(unknownData as string).includes(subString);
     const unknownString = unknownData as string;
     if (!result) {
-      this.unexpectedValues.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: subString, at: unknownString.indexOf(subString) });
-      this.typeThatFailed = `string includes ${subString}`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownString, at: unknownString.indexOf(subString) , expected: `${subString} to not be included` });
     }
     return result;
   }
@@ -47,7 +46,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).toUpperCase() === unknownData;
     if (!result) {
-      this.typeThatFailed = `string is not in capital letters`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to be in capital letters` });
     }
     return result;
   }
@@ -59,7 +58,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).toLowerCase() === unknownData;
     if (!result) {
-      this.typeThatFailed = `string is not in small letters`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to be in small letters` });
     }
     return result;
   }
@@ -71,9 +70,10 @@ export class StringValidationClass extends BaseValidationClass {
     }
     const unknownString = unknownData as string;
     unknownString.trim();
-    result = (unknownString)[0].toUpperCase() === (unknownString)[0];
+    const firstLetter = unknownString[0];
+    result = (firstLetter.toUpperCase() === firstLetter)
     if (!result) {
-      this.typeThatFailed = `first letter is not capital`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: firstLetter, expected: `to be a capital letter` });
     }
     return result;
   }
@@ -85,7 +85,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).endsWith(subString);
     if (!result) {
-      this.typeThatFailed = `string does not end with ${subString}`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to end with ${subString}` });
     }
     return result;
   }
@@ -97,7 +97,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).startsWith(subString);
     if (!result) {
-      this.typeThatFailed = `string does not start with ${subString}`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to start with ${subString}` });
     }
     return result;
   }
@@ -109,18 +109,18 @@ export class StringValidationClass extends BaseValidationClass {
     }
     result = (unknownData as string).includes('@');
     if (!result) {
-      this.typeThatFailed = `string does not include @`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to include @` });
     }
     result && (result = (unknownData as string).includes('.'));
     if (!result) {
-      this.typeThatFailed = `string does not include .`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to include .` });
     }
     if (unknownData && (unknownData as string).includes('@') && (unknownData as string).includes('.')) {
       const email = unknownData as string
       const atIndex = email.indexOf('@')
-      const dotIndex = email.indexOf('.')
+      const dotIndex = email.lastIndexOf('.')
       if (atIndex > dotIndex) {
-        this.typeThatFailed = `@ is after .`;
+        this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to have a . after the @` });
         result = false
       }
     }
@@ -138,7 +138,7 @@ export class StringValidationClass extends BaseValidationClass {
       result = true
     } catch (error) {
       result = false
-      this.typeThatFailed = `string is not a valid url`;
+      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: unknownData as string, expected: `to be a valid URL` });
     }
 
     return result;

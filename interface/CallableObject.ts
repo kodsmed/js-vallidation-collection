@@ -21,6 +21,16 @@ export interface CallableNumberValidatorObject extends CallableValidatorObject{
   thatIsPositive(unknownData: unknown): boolean;
   thatIsNegative(unknownData: unknown): boolean;
   thatIsBetweenMinMax(unknownData: unknown): boolean;
+  thatIsOverMinimum(unknownData: unknown): boolean;
+  thatIsUnderMaximum(unknownData: unknown): boolean
+  thatIsExactly(unknownData: unknown): boolean;
+  thatIsEven(unknownData: unknown): boolean;
+  thatIsOdd(unknownData: unknown): boolean;
+  thatIsNotZero(unknownData: unknown): boolean;
+  thatIsNotOne(unknownData: unknown): boolean;
+  thatIsEvenlyDivisible(unknownData: unknown): boolean;
+  thatIsAPrimeNumber(unknownData: unknown): boolean;
+  thatIsNotAPrimeNumber(unknownData: unknown): boolean;
 }
 
 export interface CallableObjectValidatorObject extends CallableValidatorObject {

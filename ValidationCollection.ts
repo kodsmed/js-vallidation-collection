@@ -10,20 +10,14 @@
  * @property {number} minimumLength - Define the minium required length.
  * @property {number} maximumLength - Define the maximum length allowed.
  * @property {number} exactLength - Define the exact length required.
+ * @property {number} minimumNumberValue - Define the minimum number value allowed.
+ * @property {number} maximumNumberValue - Define the maximum number value allowed.
+ * @property {number} exactNumberValue - Define the exact number value required.
  * @property {Array} validProperties - Example ['width', 'height', 'color'].
  * @property {Array} validValues - Examples [1, 2, 3], ['red', 'green', 'blue']. Values can be of any type.
  * @property {Array} validValueTypes - Examples ['number', 'string', 'boolean']. Strings must be lowercase.
  * // these are the output properties, they are read-only and can only be accessed via getters (see below). They are empty if there are no errors, and does not reset automatically.
- * @property {Array} unexpectedProperties - An array of any properties of the object not included in validProperty[].
- * @property {Array} missingProperties -  Properties included in validProperty[] that are not present in the object.
- * @property {Array} unexpectedValues - An array of any values of the object not included in validValues[].
- * @property {Array} unexpectedValueTypes - An array of any value types of the object not included in validValueTypes[].
- * @property {Array} missingValues - An array of any values of the object that are not present in the object.
- * @property {string} typeThatFailed - Example: it expects a string but gets a number, then typeThatFailed = 'number'.
- * @property {number} faultyLength - Example: it expects an array with 3 elements but gets an array with 2, then faultyLength = 2.
- * @property {boolean} nullEncountered - true if null is encountered, otherwise false.
- * @property {boolean} undefinedEncountered - true if undefined is encountered, otherwise false.
- * @property {boolean} NaNEncountered - true if NaN is encountered, otherwise false.
+ * @ property {Array} problems - An array of ErroneousData objects. Each object describes a problem with the data that was passed to the validator.
  */
 
 import {  ArgumentObject } from './lib/BaseValidationClass.js';
@@ -151,6 +145,66 @@ export class ValidationCollection {
         thatIsBetweenMinMax(unknownData: unknown):boolean {
           return self.numberValidationClass.thatIsBetweenMinMax(unknownData)
         }
+      },
+      {
+        thatIsOverMinimum(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsOverMinimum(unknownData)
+        }
+      },
+      {
+        thatIsUnderMaximum(unknownData: unknown): boolean {
+         return self.numberValidationClass.thatIsUnderMaximum(unknownData)
+        }
+      },
+      {
+        thatIsExactly(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsExactly(unknownData)
+        }
+      },
+      {
+        thatIsEven(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsEven(unknownData)
+        }
+      },
+      {
+        thatIsOdd(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsOdd(unknownData)
+        }
+      },
+      {
+        thatIsNotZero(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsNotZero(unknownData)
+        }
+      },
+      {
+        thatIsNotOne(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsNotOne(unknownData)
+        }
+      },
+      {
+        thatIsNotNegativeOne(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsNotNegativeOne(unknownData)
+        }
+      },
+      {
+        thatIsEvenlyDivisible(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsEvenlyDivisible(unknownData)
+        }
+      },
+      {
+        thatIsEvenlyDivisibleBy(unknownData: unknown, divisor: number): boolean {
+          return self.numberValidationClass.thatIsEvenlyDivisibleBy(unknownData, divisor)
+        }
+      },
+      {
+        thatIsAPrimeNumber(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsAPrimeNumber(unknownData)
+        }
+      },
+      {
+        thatIsNotAPrimeNumber(unknownData: unknown): boolean {
+          return self.numberValidationClass.thatIsNotAPrimeNumber(unknownData)
+        }
       }
     )
     return callableObject
@@ -267,92 +321,11 @@ export class ValidationCollection {
   }
 
   get report() {
-    throw new Error('TODO: implement report')
+    const arrayProblems = this.arrayValidationClass.report
+    const objectProblems = this.objectValidationClass.report
+    const stringProblems = this.stringValidationClass.report
+    const numberProblems = this.numberValidationClass.report
+    const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems)
+    return problems
   }
-
-/*
-
-
-  isObjectThatMustHaveSanctionedValues (unknownData) {
-    let result = this.isAnObject(unknownData)
-    if (result) {
-      const values = Object.values(unknownData)
-      const unexpectedValues = []
-      for (const value of values) {
-        if (!this.validValues.includes(value)) {
-          unexpectedValues.push(value)
-          result = false
-        }
-      }
-      if (unexpectedValues.length > 0) {
-        this.unexpectedValues = unexpectedValues
-      }
-    }
-    return result
-  }
-
-  isAnObjectThatMustHaveValueType(unknownData) {
-    let result = this.isAnObject(unknownData)
-    if (result) {
-      const values = Object.values(unknownData)
-      const unexpectedValueTypes = []
-      for (const value of values) {
-        if (!this.validValueTypes.includes(typeof value)) {
-          unexpectedValueTypes.push(value)
-          result = false
-        }
-      }
-      if (unexpectedValueTypes.length > 0) {
-        this.unexpectedValues = unexpectedValueTypes
-      }
-    }
-    return result
-  }
-
-
-  isArrayOfNumbers (unknownData) {
-    let result = this.isArray(unknownData)
-    if (result) {
-      for (const value of unknownData) {
-        if (typeof value !== 'number' || isNaN(value)) {
-          result = false
-          this.typeThatFailed = typeof value
-        }
-      }
-    }
-    return result
-  }
-
-  isArrayOfObjects (unknownData) {
-    let result = this.isArray(unknownData)
-    if (result) {
-      for (const element of unknownData) {
-        if (typeof element !== 'object' || Array.isArray(element)) {
-          result = false
-          this.typeThatFailed = typeof element
-        }
-      }
-    }
-    return result
-  }
-
-  isOfValidValueType (unknownData) {
-    let result = true
-    if (!this.validValueTypes.includes(typeof unknownData)) {
-      result = false
-      this.typeThatFailed = typeof unknownData
-    }
-    return result
-  }
-
-  isInstanceOf (unknownData, classType) {
-    let result = this.isAnObject(unknownData)
-    if (!(unknownData instanceof classType)) {
-      result = false
-      this.typeThatFailed = typeof unknownData
-    }
-    return result
-  }
-}
-  */
 }

@@ -16,6 +16,15 @@ export class ObjectValidationClass extends BaseValidationClass {
     return true;
   }
 
+  isInstanceOf (unknownData: unknown, classType: any): boolean {
+    let result = this.isAnObject(unknownData)
+    if (!(unknownData instanceof classType)) {
+      result = false
+      this.typeThatFailed = typeof unknownData
+    }
+    return result
+  }
+
   thatMayHaveProperties(unknownData: unknown): boolean {
     let result = this.type(unknownData);
     if (!result) {

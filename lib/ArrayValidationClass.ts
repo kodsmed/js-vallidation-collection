@@ -13,51 +13,50 @@ export class ArrayValidationClass extends BaseValidationClass {
     this.stringValidator = new StringValidationClass(argumentObject)
     this.numberValidator = new NumberValidationClass(argumentObject)
     this.objectValidator = new ObjectValidationClass(argumentObject)
-
   }
 
   type(unknownData: unknown): boolean {
     const result = Array.isArray(unknownData);
     if (!result) {
-      this.typeThatFailed = typeof unknownData;
+      this.problems.push({ what: What.unexpectedType, in: 'Array', is: typeof unknownData, expected: 'Array' });
       return false;
     }
     return true;
   }
 
   ofStrings(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.stringValidator)
+    return this.isExpectedContent(unknownData, this.stringValidator, 'string')
   }
 
   ofNumbers(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.numberValidator)
+    return this.isExpectedContent(unknownData, this.numberValidator, 'number')
   }
 
   ofObjects(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.objectValidator)
+    return this.isExpectedContent(unknownData, this.objectValidator, 'object')
   }
 
   ofArrays(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this)
+    return this.isExpectedContent(unknownData, this, 'Array')
   }
 
   ofBooleans(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'boolean')
+    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'boolean', 'boolean')
   }
 
   ofFunctions(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'function')
+    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'function', 'function')
   }
 
   ofSymbols(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'symbol')
+    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'symbol', 'symbol')
   }
 
   ofDates(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => item instanceof Date)
+    return this.isExpectedContentType(unknownData, (item: any) => item instanceof Date, 'Date')
   }
 
-  private isExpectedContent(unknownData: unknown, validatorInstance: StringValidationClass|NumberValidationClass|ObjectValidationClass|ArrayValidationClass): boolean {
+  private isExpectedContent(unknownData: unknown, validatorInstance: StringValidationClass|NumberValidationClass|ObjectValidationClass|ArrayValidationClass, expected: string): boolean {
     let result = this.type(unknownData);
     if (!result) {
       return false;
@@ -67,7 +66,7 @@ export class ArrayValidationClass extends BaseValidationClass {
     for (let index = 0; index < data.length; index++) {
       result = validatorInstance.type(data[index]);
       if (!result) {
-        this.recordErroneousDataType(typeof data[index], index)
+        this.recordErroneousDataType(typeof data[index], index, expected)
         endResult = false
       }
       endResult = endResult && result
@@ -75,7 +74,7 @@ export class ArrayValidationClass extends BaseValidationClass {
     return true;
   }
 
-  private isExpectedContentType(unknownData: unknown, typeCheck: (item: any) =>boolean): boolean {
+  private isExpectedContentType(unknownData: unknown, typeCheck: (item: any) =>boolean , expected: string): boolean {
     // first check that the unknownData is an array
     if (!this.type(unknownData)) {
       return false;
@@ -85,19 +84,20 @@ export class ArrayValidationClass extends BaseValidationClass {
     // use the passed in typeCheck arrow-function, check each item in the array
     for (let index = 0; index < data.length; index++) {
       if (!typeCheck(data[index])) {
-          this.recordErroneousDataType(typeof data[index], index);
+          this.recordErroneousDataType(typeof data[index], index, expected);
           return false;
       }
     }
     return true;
   }
 
-  private recordErroneousDataType(isType: string, index: number) {
+  private recordErroneousDataType(isType: string, index: number, expectedType: string) {
     const erroneousData: ErroneousData = {
-      what: What.unexpectedValues,
+      what: What.unexpectedValueTypes,
       in: 'Array',
       is: isType,
-      at: index }
-    this.unexpectedValueTypes.push(erroneousData)
+      at: index,
+      expected: expectedType}
+    this.problems.push(erroneousData)
   }
 }
