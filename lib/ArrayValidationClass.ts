@@ -18,10 +18,77 @@ export class ArrayValidationClass extends BaseValidationClass {
   type(unknownData: unknown): boolean {
     const result = Array.isArray(unknownData);
     if (!result) {
-      this.problems.push({ what: What.unexpectedType, in: 'Array', is: typeof unknownData, expected: 'Array' });
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'Array',
+        is: typeof unknownData,
+        expected: 'Array',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
       return false;
     }
     return true;
+  }
+
+  withMinimumLength(unknownData: unknown): boolean {
+    let result = this.type(unknownData);
+    if (!result) {
+      return false;
+    }
+    const data = unknownData as Array<any>;
+    if (data.length < this.minimumLength) {
+      this.problems.push({
+        what: What.tooShort,
+        in: 'Array',
+        is: data.length.toString(),
+        expected: this.minimumLength.toString(),
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      result = false;
+      this.handleValidationFailure()
+    }
+    return result;
+  }
+
+  withMaximumLength(unknownData: unknown): boolean {
+    let result = this.type(unknownData);
+    if (!result) {
+      return false;
+    }
+    const data = unknownData as Array<any>;
+    if (data.length > this.maximumLength) {
+      this.problems.push({
+        what: What.tooLong,
+        in: 'Array',
+        is: data.length.toString(),
+        expected: this.maximumLength.toString(),
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      result = false;
+      this.handleValidationFailure()
+    }
+    return result;
+  }
+
+  withExactLength(unknownData: unknown): boolean {
+    let result = this.type(unknownData);
+    if (!result) {
+      return false;
+    }
+    const data = unknownData as Array<any>;
+    if (data.length !== this.exactLength) {
+      this.problems.push({
+        what: What.faultyLength,
+        in: 'Array',
+        is: data.length.toString(),
+        expected: this.exactLength.toString(),
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      result = false;
+      this.handleValidationFailure()
+    }
+    return result;
   }
 
   ofStrings(unknownData: unknown): boolean {
@@ -71,7 +138,10 @@ export class ArrayValidationClass extends BaseValidationClass {
       }
       endResult = endResult && result
     }
-    return true;
+    if (!endResult) {
+      this.handleValidationFailure()
+    }
+    return endResult;
   }
 
   private isExpectedContentType(unknownData: unknown, typeCheck: (item: any) =>boolean , expected: string): boolean {
@@ -85,6 +155,7 @@ export class ArrayValidationClass extends BaseValidationClass {
     for (let index = 0; index < data.length; index++) {
       if (!typeCheck(data[index])) {
           this.recordErroneousDataType(typeof data[index], index, expected);
+          this.handleValidationFailure()
           return false;
       }
     }
@@ -97,7 +168,9 @@ export class ArrayValidationClass extends BaseValidationClass {
       in: 'Array',
       is: isType,
       at: index,
-      expected: expectedType}
+      expected: expectedType,
+      ...(this.name && this.name !== '' ? { name: this.name } : {})
+    }
     this.problems.push(erroneousData)
   }
 }

@@ -1,4 +1,4 @@
-import { BaseValidationClass, ArgumentObject, ErroneousData, What } from './BaseValidationClass.js';
+import { BaseValidationClass, ArgumentObject, ErroneousData, What } from './BaseValidationClass';
 
 export class ObjectValidationClass extends BaseValidationClass {
   [key: string]: any;
@@ -10,7 +10,14 @@ export class ObjectValidationClass extends BaseValidationClass {
   type(unknownData: unknown): boolean {
     const result = typeof unknownData === 'object';
     if (!result) {
-      this.typeThatFailed = typeof unknownData;
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'object',
+        is: typeof unknownData,
+        expected: 'object',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
       return false;
     }
     return true;
@@ -20,7 +27,14 @@ export class ObjectValidationClass extends BaseValidationClass {
     let result = this.isAnObject(unknownData)
     if (!(unknownData instanceof classType)) {
       result = false
-      this.typeThatFailed = typeof unknownData
+      this.problems.push({
+        what: What.unexpectedType,
+        in: typeof unknownData as string,
+        is: typeof unknownData as string,
+        expected: classType.name,
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      })
+      this.handleValidationFailure()
     }
     return result
   }
@@ -35,7 +49,15 @@ export class ObjectValidationClass extends BaseValidationClass {
 
     for (const property of this.validProperties) {
       if (!dataObject.hasOwnProperty(property)) {
-        this.unexpectedProperties.push({ what: What.unexpectedProperties, in: typeof unknownData as string, is: property });
+        this.unexpectedProperties.push({
+          what: What.unexpectedProperties,
+          in: typeof unknownData as string,
+          is: property,
+          expected: this.validProperties.join(', '),
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        });
+        result = false;
+        this.handleValidationFailure()
       }
       const index = allProperties.indexOf(property);
       if (index > -1) {
@@ -57,7 +79,12 @@ export class ObjectValidationClass extends BaseValidationClass {
 
     for (const property of this.validProperties) {
       if (!dataObject.hasOwnProperty(property)) {
-        missingProperties.push({ what: What.missingProperties, in: typeof unknownData as string })
+        missingProperties.push({
+          what: What.missingProperties,
+          in: typeof unknownData as string,
+          expected: `${property} to be included`,
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        })
         result = false
       } else {
         const index = allProperties.indexOf(property)
@@ -75,6 +102,9 @@ export class ObjectValidationClass extends BaseValidationClass {
       result = false
       this.missingProperties = missingProperties
     }
+    if (!result) {
+      this.handleValidationFailure()
+    }
     return result
   }
 
@@ -89,9 +119,18 @@ export class ObjectValidationClass extends BaseValidationClass {
     for (const property of allProperties) {
       // loop through all the properties of the object, check if any of them have a value that is not in the array of sanctioned values. Type can be anything. As long as it's in the array of sanctioned values, it's ok.
       if (this.validValues.indexOf(dataObject[property]) === -1) {
-        this.unexpectedValues.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: property });
+        this.unexpectedValues.push({
+          what: What.unexpectedValues,
+          in: typeof unknownData as string,
+          is: property,
+          expected: this.validValues.join(', '),
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        });
         result = false;
       }
+    }
+    if (!result) {
+      this.handleValidationFailure()
     }
     return result;
   }
@@ -108,9 +147,18 @@ export class ObjectValidationClass extends BaseValidationClass {
     for (const property of allProperties) {
       const valueType: string = typeof dataObject[property];
       if (this.validValueTypes.indexOf(valueType) === -1) {
-        this.unexpectedValueTypes.push({ what: What.unexpectedValueTypes, in: typeof unknownData as string, is: property });
+        this.unexpectedValueTypes.push({
+          what: What.unexpectedValueTypes,
+          in: typeof unknownData as string,
+          is: property,
+          expected: this.validValueTypes.join(', '),
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        });
         result = false;
       }
+    }
+    if (!result) {
+      this.handleValidationFailure()
     }
     return result;
   }
@@ -118,7 +166,12 @@ export class ObjectValidationClass extends BaseValidationClass {
   private buildErroneousDataArray (array: Array<string>, what: What, inWhat: string): Array<ErroneousData> {
     const erroneousDataArray: Array<ErroneousData> = []
     for (const item of array) {
-      erroneousDataArray.push({what: what, in: inWhat, is: item})
+      erroneousDataArray.push({
+        what: what,
+        in: inWhat,
+        is: item,
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      })
     }
     return erroneousDataArray
   }

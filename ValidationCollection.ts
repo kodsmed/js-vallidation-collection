@@ -16,16 +16,16 @@
  * @property {Array} validProperties - Example ['width', 'height', 'color'].
  * @property {Array} validValues - Examples [1, 2, 3], ['red', 'green', 'blue']. Values can be of any type.
  * @property {Array} validValueTypes - Examples ['number', 'string', 'boolean']. Strings must be lowercase.
- * // these are the output properties, they are read-only and can only be accessed via getters (see below). They are empty if there are no errors, and does not reset automatically.
- * @ property {Array} problems - An array of ErroneousData objects. Each object describes a problem with the data that was passed to the validator.
+ * @property {string} name - Name of the parameter that is being validated.
+ * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import {  ArgumentObject } from './lib/BaseValidationClass.js';
-import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
-import { StringValidationClass } from './lib/StringValidationClass.js';
-import { NumberValidationClass } from './lib/NumberValidationClass.js';
-import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
-import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
+import {  ArgumentObject, ErroneousData } from './lib/BaseValidationClass';
+import { ArrayValidationClass } from './lib/ArrayValidationClass';
+import { StringValidationClass } from './lib/StringValidationClass';
+import { NumberValidationClass, divisibleByArgument } from './lib/NumberValidationClass';
+import { ObjectValidationClass } from './lib/ObjectValidationClass';
+import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 
 export class ValidationCollection {
   private stringValidationClass: StringValidationClass
@@ -48,17 +48,17 @@ export class ValidationCollection {
       },
       {
         withMinimumLength(unknownData: unknown):boolean {
-          return self.stringValidationClass.withMinimumLength(unknownData)
+          return  self.stringValidationClass.withMinimumLength(unknownData)
         }
       },
       {
         withMaximumLength(unknownData: unknown):boolean {
-          return self.stringValidationClass.withMaximumLength(unknownData)
+          return  self.stringValidationClass.withMaximumLength(unknownData)
         }
       },
       {
         withExactLength(unknownData: unknown):boolean {
-          return self.stringValidationClass.withExactLength(unknownData)
+          return  self.stringValidationClass.withExactLength(unknownData)
         }
       },
       {
@@ -87,13 +87,13 @@ export class ValidationCollection {
         }
       },
       {
-        endsWith(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.endsWith(unknownData, subString)
+        thatEndsWith(unknownData: unknown, subString: string) : boolean {
+          return self.stringValidationClass.thatEndsWith(unknownData, subString)
         }
       },
       {
-        startsWith(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.startsWith(unknownData, subString)
+        thatStartsWith(unknownData: unknown, subString: string) : boolean {
+          return self.stringValidationClass.thatStartsWith(unknownData, subString)
         }
       },
       {
@@ -115,21 +115,6 @@ export class ValidationCollection {
     const callableObject : CallableNumberValidatorObject = Object.assign(
       function (unknownData: unknown): boolean {
         return self.numberValidationClass.type(unknownData)
-      },
-      {
-        withMinimumLength(unknownData: unknown):boolean {
-          return self.numberValidationClass.withMinimumLength(unknownData)
-        }
-      },
-      {
-        withMaximumLength(unknownData: unknown):boolean {
-          return self.numberValidationClass.withMaximumLength(unknownData)
-        }
-      },
-      {
-        withExactLength(unknownData: unknown):boolean {
-          return self.numberValidationClass.withExactLength(unknownData)
-        }
       },
       {
         thatIsPositive(unknownData: unknown):boolean {
@@ -192,8 +177,8 @@ export class ValidationCollection {
         }
       },
       {
-        thatIsEvenlyDivisibleBy(unknownData: unknown, divisor: number): boolean {
-          return self.numberValidationClass.thatIsEvenlyDivisibleBy(unknownData, divisor)
+        thatIsEvenlyDivisibleBy(argument: divisibleByArgument): boolean {
+          return self.numberValidationClass.thatIsEvenlyDivisibleBy(argument)
         }
       },
       {
@@ -327,5 +312,40 @@ export class ValidationCollection {
     const numberProblems = this.numberValidationClass.report
     const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems)
     return problems
+  }
+
+  get reportAsString() {
+    const arrayProblems = this.arrayValidationClass.reportAsString
+    const objectProblems = this.objectValidationClass.reportAsString
+    const stringProblems = this.stringValidationClass.reportAsString
+    const numberProblems = this.numberValidationClass.reportAsString
+    const problems = arrayProblems + objectProblems + stringProblems + numberProblems
+    return problems
+  }
+
+  clearProblems() {
+    this.arrayValidationClass.clearProblems()
+    this.objectValidationClass.clearProblems()
+    this.stringValidationClass.clearProblems()
+    this.numberValidationClass.clearProblems()
+  }
+
+  get hasProblems(): boolean {
+    const problems = this.arrayValidationClass.hasProblems
+    || this.objectValidationClass.hasProblems
+    || this.stringValidationClass.hasProblems
+    || this.numberValidationClass.hasProblems
+    return problems
+  }
+
+  get shouldThrowErrors(): boolean {
+    return this.arrayValidationClass.shouldThrowErrors
+      || this.objectValidationClass.shouldThrowErrors
+      || this.stringValidationClass.shouldThrowErrors
+      || this.numberValidationClass.shouldThrowErrors
+  }
+
+  get rules() : ArgumentObject {
+    return this.stringValidationClass.rules
   }
 }

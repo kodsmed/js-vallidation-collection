@@ -1,18 +1,19 @@
 export interface CallableValidatorObject {
   (unknownData: unknown): boolean;
-  withMinimumLength(unknownData: unknown): boolean;
-  withMaximumLength(unknownData: unknown): boolean;
-  withExactLength(unknownData: unknown): boolean;
+  clearProblems(): void;
 }
 
 export interface CallableStringValidatorObject extends CallableValidatorObject{
+  withMinimumLength(unknownData: unknown): boolean;
+  withMaximumLength(unknownData: unknown): boolean;
+  withExactLength(unknownData: unknown): boolean;
   thatIncludes(unknownData: unknown, subString: string) : boolean;
   thatDoesNotIncludes(unknownData: unknown, subString: string) : boolean;
   thatIsInCapitalLetters(unknownData: unknown) : boolean;
-  thatItInSmallLetters(unknownData: unknown) : boolean;
+  thatIsInSmallLetters(unknownData: unknown) : boolean;
   firstLetterIsCapital(unknownData: unknown) : boolean;
-  endsWith(unknownData: unknown, subString: string) : boolean;
-  startsWith(unknownData: unknown, subString: string) : boolean;
+  thatEndsWith(unknownData: unknown, subString: string) : boolean;
+  thatStartsWith(unknownData: unknown, subString: string) : boolean;
   thatIsAnEmail(unknownData: unknown) : boolean;
   thatIsAUrl(unknownData: unknown) : boolean;
 }
@@ -34,6 +35,9 @@ export interface CallableNumberValidatorObject extends CallableValidatorObject{
 }
 
 export interface CallableObjectValidatorObject extends CallableValidatorObject {
+  withMinimumLength(unknownData: unknown): boolean;
+  withMaximumLength(unknownData: unknown): boolean;
+  withExactLength(unknownData: unknown): boolean;
   thatMayHaveProperties(unknownData: unknown): boolean;
   thatMustHaveProperties(unknownData: unknown): boolean;
   thatMustHaveSanctionedValues(unknownData: unknown): boolean;
@@ -41,6 +45,9 @@ export interface CallableObjectValidatorObject extends CallableValidatorObject {
 }
 
 export interface CallableArrayValidatorObject extends CallableValidatorObject {
+  withMinimumLength(unknownData: unknown): boolean;
+  withMaximumLength(unknownData: unknown): boolean;
+  withExactLength(unknownData: unknown): boolean;
   ofStrings(unknownData: unknown): boolean;
   ofNumbers(unknownData: unknown): boolean;
   ofObjects(unknownData: unknown): boolean;
