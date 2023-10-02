@@ -364,3 +364,5 @@ export class ValidationCollection {
     return this.stringValidationClass.rules
   }
 }
+
+export default ValidationCollection;

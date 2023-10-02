@@ -1,4 +1,4 @@
-import { BaseValidationClass } from './lib/BaseValidationClass';
+import { BaseValidationClass } from '../src/lib/BaseValidationClass';
 
 describe('BaseValidationClass Test suit', () => {
   it('should create a new instance of BaseValidationClass', () => {

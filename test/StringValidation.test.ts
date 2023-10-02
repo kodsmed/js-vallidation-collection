@@ -1,5 +1,5 @@
-import { ValidationCollection } from './ValidationCollection'
-import { ArgumentObject } from './lib/BaseValidationClass'
+import { ValidationCollection } from '../src/ValidationCollection'
+import { ArgumentObject } from '../src/lib/BaseValidationClass'
 
 type TestCase = { input: unknown, expected: boolean }
 

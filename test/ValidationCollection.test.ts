@@ -1,5 +1,5 @@
-import { ValidationCollection } from './ValidationCollection';
-import { ArgumentObject, ErroneousData, What } from './lib/BaseValidationClass';
+import { ValidationCollection } from '../src/ValidationCollection';
+import { ArgumentObject, ErroneousData, What } from '../src/lib/BaseValidationClass';
 
 describe('Validation Collection Test suit', () => {
   describe('Constructor', () => {

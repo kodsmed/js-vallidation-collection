@@ -1,46 +1,6 @@
-# js-validation-collection
+# validation-collection
+
 A javascript class that contains a wide and growing range of methods for validating javascript variables, arrays and objects and provide useful feedback on points of failure in the validation process. Such as missing properties in an object or missing values in an array, unexpected properties in an object, unexpected value types, etc.
-
-Example replace this code:
-
-```` javascript
-const objectThatMustContainXYZ = {x: 1, y: 2, z: 3, a: 9};
-
-if(!objectThatMustContainXYZ.hasOwnProperty('x') || objectThatMustContainXYZ.x === undefined || objectThatMustContainXYZ.x === null) {
-  // do error handling
-  throw new Error('object does not contain property x');
-}
-
-if(!objectThatMustContainXYZ.hasOwnProperty('y') || objectThatMustContainXYZ.y === undefined || objectThatMustContainXYZ.y === null) {
-  // do error handling
-  throw new Error('object does not contain property y');
-}
-
-if(!objectThatMustContainXYZ.hasOwnProperty('z') || objectThatMustContainXYZ.z === undefined || objectThatMustContainXYZ.z === null) {
-  // do error handling
-  throw new Error('object does not contain property z');
-}
-````
-
-with this code:
-
-```` javascript
-const objectThatMustContainXYZ = {x: 1, y: 2, z: 3, a: 9};
-
-const validator = new Validation({validProperties: ['x', 'y', 'z'], validValues: [9, 1], maximumLength: 3});
-if(!validator.isObjectThatMustHaveProperties(objectThatMustContainXYZ)) {
-  // do error handling
-  const reports = validator.report();
-  for (const report in reports) {
-    const message = `${report.what} failure in ${report.in}${report.at ? ` at ${report.at}, is ${report.is},` : ''}${report.expected ? ` expected ${report.expected}` : ''}\n`;
-  }
-  throw new Error(message);
-  // Unexpected property failure in object at 3, is a expected x, y, z
-  // Unexpected value failure in object at 1, is 2, expected 9, 1
-  // Unexpected value failure in object at 2, is 3, expected 9, 1
-  // Too Long failure in object at 3, expected 2
-}
-````
 
 No more lengthy if statements with endless && or ||,  
 No more undefined and null-checks,  
@@ -48,7 +8,9 @@ just a simple class that does the work for you.
 
 ## Installation
 
-I intent to publish this package to npm in the near future.
+```` bash
+npm install validation-collection
+````
 
 ## Usage
 
@@ -58,19 +20,16 @@ I intent to publish this package to npm in the near future.
 import Validation from 'validation';
 ````
 
-
 ## Support
 
-I develop this package in my spare time, and mainly for my own use, so I can't guarantee that I will be able to help you with any issues you might encounter. But I will do my best to help you out. If you have any questions, suggestions or issues, please create an issue on the [github repository](https://github.com/kodsmed/js-vallidation-collection/issues). I will try to respond as soon as possible.
+I develop this package in my spare time, so I can't guarantee that I will be able to help you with any issues you might encounter. But I will do my best to help you out. If you have any questions, suggestions or issues, please create an issue on the [github repository](https://github.com/kodsmed/js-vallidation-collection/issues). I will try to respond as soon as possible.
 
 ## License
 
-MIT License
+Copyright 2023 Jimmy Karlsson
 
-## Author
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-Jimmy "Kodesmed" Karlsson
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-## Forking and contributing
-
-Feel free to fork this repository and contribute to it. I will review all pull requests and merge them if they are in line with the purpose of this package. If you have any questions, suggestions or issues, please create an issue on the [github repository](https://github.com/kodsmed/js-vallidation-collection/issues). I will try to respond as soon as possible.
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

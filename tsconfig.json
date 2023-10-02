@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true, // Enforce consistent casing of file names
     "strict": true,
-    "module": "ES6",
-    "target": "ES6",
-    "esModuleInterop": true,
-    "noEmit": false,
-  }
+    "target": "es5", // Target ES5 for maximum compatibility
+    "module": "commonjs", // Use CommonJS module system for Node.js
+    "outDir": "./dist", // Output directory for compiled JavaScript
+    "declaration": true, // Generate declaration files (.d.ts) for TypeScript type definitions
+    "sourceMap": true // Generate source maps (optional, but helpful for debugging)
+  },
+  "include": ["src/**/*"], // Source files or directories to include in the compilation
+  "exclude": ["node_modules"] // Exclude node_modules from the compilation
 }
