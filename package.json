@@ -1,8 +1,8 @@
 {
-  "name": "js-validation-collection",
+  "name": "validation-collection",
   "version": "1.0.0",
   "author": "Jimmy Karlsson",
-  "description": "a collection of a wide range of validation methods for arrays, objects, numbers and strings in javascript.",
+  "description": "a collection of a wide range of validation methods for arrays, objects, numbers and strings in typescript/javascript.",
   "type": "module",
   "main": "./dist/ValidationCollection.js",
   "types": "./dist/ValidationCollection.d.ts",

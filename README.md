@@ -14,16 +14,146 @@ npm install validation-collection
 
 ## Usage
 
-### Importing the class
+With the proper combination of method and arguments, you can validate almost anything.  
+The class will return true if the validation is successful, and false if it is not.  
+You can also set the shouldThrow property to true in the constructor, and the class will throw an error if the validation fails.
+
+### Example, general usage
 
 ```` javascript
-import Validation from 'validation';
+
+```` javascript
+import validationCollection from 'validation-collection';
+const validator = new validationCollection({}); // note that the constructor takes an object as an argument
+let result = validator.isString('hello world');
+console.log(result); // true
+let result = validator.isString(123);
+console.log(result); // false
+const validator = new validationCollection({ minimumLength: 3 }); // note that the constructor takes an object as an argument
+let result = validator.isString('hello world');
+console.log(result); // true
+let result = validator.isString('hi');
+console.log(result); // false
 ````
+
+### Example, validating a point Object. (x, y, z)
+
+```` javascript
+import validationCollection from 'validation-collection';
+const validator = new validationCollection({validProperties: ['x', 'y', 'z'], validValueTypes: ['number']}, name: 'Point validator');
+let point = {x: 1, y: 2, z: 3};
+let resultProperties = validator.isObject.thatMustHaveProperties(point);
+console.log(resultProperties); // true
+let resultValues = validator.isObject.thatMustHaveSanctionedValueTypes(point);
+console.log(resultValues); // true
+
+let point = {x: 1, y: '2', b: 3};
+let resultProperties = validator.isObject.thatMustHaveProperties(point);
+console.log(resultProperties); // true
+let resultValues = validator.isObject.thatMustHaveSanctionedValueTypes(point);
+console.log(resultValues); // false
+console.log(validator.reportAsString)
+// Point validator: missing property failure in object, expected z to be included
+// Point validator: unexpected property failure in object, is b, expected x, y, z
+// Point validator: unexpected value type failure in object, is string, expected number
+````
+
+### Example, validate an array that may contain only numbers and boolean values
+
+```` javascript
+import validationCollection from 'validation-collection';
+const validator = new validationCollection({validValueTypes: ['number', 'boolean']});
+const mySpecialArray = [1,3,5,6,7,true,false,-144]
+let result = validator.isArray.thatMustHaveSanctionedValueTypes(mySpecialArray)
+console.log(result) // true
+mySpecialArray.push('string')
+result = validator.isArray.thatMustHaveSanctionedValueTypes(mySpecialArray)
+console.log(result) // false
+console.log(validator.reportAsString) // unexpected value type failure in array, is string, expected number, boolean
+````
+
+### Constructor
+
+The constructor takes an object as an argument.
+ArgumentObject = {
+  minimumLength?: number; // minimum length of whatever is being validated
+  maximumLength?: number; // maximum length of whatever is being validated
+  exactLength?: number; // exact length of whatever is being validated
+  minimumNumberValue?: number; // minimum value of whatever is being validated
+  maximumNumberValue?: number; // maximum value of whatever is being validated
+  exactNumberValue?: number; // required exact value of whatever is being validated
+  validProperties?: string[]; // valid properties of Objects being validated
+  validValues?: any[]; // valid values of Arrays being validated
+  validValueTypes?: string[]; // valid value types of whatever is being validated
+  name?: string; // used for error messages
+  shouldThrow?: boolean; // if true, the class will throw an error if the validation fails
+};
+
+### Methods
+
+Its a long list of methods... but don't worry, they are all very simple to use, and covered by intellisense...
+
+| Method | Argument | Description |
+| --- | --- | --- |
+| isString() | value | Checks if the value is a string. |
+| isString.withMinimumLength() | value | Checks if the value is a string and if it is at least the minimum length. |
+| isString.withMaximumLength() | value | Checks if the value is a string and if it is at most the maximum length. |
+| isString.withExactLength() | value | Checks if the value is a string and if it is exactly the exact length. |
+| isString.thatIncludes() | value, subString | Checks if the value is a string and if it includes the subString. |
+| isString.thatStartsWith() | value, subString | Checks if the value is a string and if it starts with the subString. |
+| isString.thatEndsWith() | value, subString | Checks if the value is a string and if it ends with the subString. |
+| isString.thatDoesNotInclude() | value, subString | Checks if the value is a string and if it does not include the subString. |
+| isString.thatIsInCapitalLetters() | value | Checks if the value is a string and if it is all in capital letters. |
+| isString.thatIsInSmallLetters() | value | Checks if the value is a string and if it is all in lower case. |
+| isString.thatIsAnEmail() | value | Checks if the value is a string and if it is looks an email address. |
+| isString.thatIsAUrl() | value | Checks if the value is a string and if it is looks like a url. |
+| --- | --- | --- |
+| isNumber() | value | Checks if the value is a number. |
+| isNumber.thatIsPositive() | value | Checks if the value is a number and if it is positive. |
+| isNumber.thatIsNegative() | value | Checks if the value is a number and if it is negative. |
+| isNumber.thatIsBetweenMinMax() | value | Checks if the value is a number and if it is between the minimum and maximum values. |
+| isNumber.thatIsOverMinimum() | value | Checks if the value is a number and if it is over the minimum value. |
+| isNumber.thatIsUnderMaximum() | value | Checks if the value is a number and if it is under the maximum value. |
+| isNumber.thatIsExactly() | value | Checks if the value is a number and if it is exactly the exact value. |
+| isNumber.thatIsEven() | value | Checks if the value is a number and if it is even. |
+| isNumber.thatIsOdd() | value | Checks if the value is a number and if it is odd. |
+| isNumber.thatIsNotZero() | value | Checks if the value is a number and if it is not zero. |
+| isNumber.thatIsNotOne() | value | Checks if the value is a number and if it is not one. |
+| isNumber.thatIsNotNegativeOne() | value | Checks if the value is a number and if it is not negative one. |
+| isNumber.thatIsEvenlyDivisible() | value | Checks if the value is a number and if it is evenly divisible by anything. |
+| isNumber.thatIsEvenlyDivisibleBy() | { value: unknown, divisor: number } | Checks if the value is a number and if it is evenly divisible by the divisor. |
+| isNumber.thatIsAPrimeNumber() | value | Checks if the value is a number and if it is a prime number. |
+| isNumber.thatIsNotAPrimeNumber() | value | Checks if the value is a number and if it is not a prime number. |
+| --- | --- | --- |
+| isObject() | value | Checks if the value is an object. |
+| isObject.withMinimumLength() | value | Checks if the value is an object and if it has at least the minimum length amount of properties. |
+| isObject.withMaximumLength() | value | Checks if the value is an object and if it has at most the maximum length amount of properties. |
+| isObject.withExactLength() | value | Checks if the value is an object and if it has exactly the exact length amount of properties. |
+| isObject.thatMayHaveProperties() | value | Checks if the value is an object and that all the properties it have are allowed. |
+| isObject.thatMustHaveProperties() | value | Checks if the value is an object and have all the properties required. |
+| isObject.thatMustHaveSanctionedValues() | value | Checks if the value is an object and that all the properties have sanctioned values. |
+| isObject.thatMustHaveSanctionedValueTypes() | value | Checks if the value is an object and that all the properties have sanctioned value types. |
+| isObject.thatIsInstanceOf() |  value: unknown, instance: unknown  | Checks if the value is an object and that it is an instance of the instance. |
+| --- | --- | --- |
+| isArray() | value | Checks if the value is an array. |
+| isArray.withMinimumLength() | value | Checks if the value is an array and if it has at least the minimum length amount of values. |
+| isArray.withMaximumLength() | value | Checks if the value is an array and if it has at most the maximum length amount of values. |
+| isArray.withExactLength() | value | Checks if the value is an array and if it has exactly the exact length amount of values. |
+| isArray.ofStrings() | value | Checks if the value is an array and if all the values are strings. |
+| isArray.ofNumbers() | value | Checks if the value is an array and if all the values are numbers. |
+| isArray.ofObjects() | value | Checks if the value is an array and if all the values are objects. |
+| isArray.ofArrays() | value | Checks if the value is an array and if all the values are arrays. |
+| isArray.ofBooleans() | value | Checks if the value is an array and if all the values are booleans. |
+| isArray.ofFunctions() | value | Checks if the value is an array and if all the values are functions. |
+| isArray.ofSymbols() | value | Checks if the value is an array and if all the values are symbols. |
+| isArray.ofDates() | value | Checks if the value is an array and if all the values are dates. |
+| isArray.thatMustHaveSanctionedValues() | value | Checks if the value is an array and that all the values have sanctioned values. |
+| isArray.thatMustHaveSanctionedValueTypes() | value | Checks if the value is an array and that all the values have sanctioned value types. |
 
 ## State of the project
 
 Project is stable and ready for use.  
-(but don't trust your bank account to my 30hours of coding.)
+(but don't trust your bank to my 30hours of coding.)
 
 I will continue to add more methods to the class as I find the need for them, or they are requested.  
 This will likely be the only validation ts/js class that I will need for the foreseeable future,  
