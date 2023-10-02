@@ -74,20 +74,21 @@ console.log(validator.reportAsString) // unexpected value type failure in array,
 
 ### Constructor
 
-The constructor takes an object as an argument.
-ArgumentObject = {
-  minimumLength?: number; // minimum length of whatever is being validated
-  maximumLength?: number; // maximum length of whatever is being validated
-  exactLength?: number; // exact length of whatever is being validated
-  minimumNumberValue?: number; // minimum value of whatever is being validated
-  maximumNumberValue?: number; // maximum value of whatever is being validated
-  exactNumberValue?: number; // required exact value of whatever is being validated
-  validProperties?: string[]; // valid properties of Objects being validated
-  validValues?: any[]; // valid values of Arrays being validated
-  validValueTypes?: string[]; // valid value types of whatever is being validated
-  name?: string; // used for error messages
-  shouldThrow?: boolean; // if true, the class will throw an error if the validation fails
-};
+The constructor takes an object as an argument.  
+ArgumentObject = {  
+  &nbsp;&nbsp;minimumLength?: number; // minimum length of whatever is being validated  
+  &nbsp;&nbsp;maximumLength?: number; // maximum length of whatever is being validated  
+  &nbsp;&nbsp;exactLength?: number; // exact length of whatever is being validated  
+  &nbsp;&nbsp;minimumNumberValue?: number; // minimum value of whatever is being validated  
+  &nbsp;&nbsp;maximumNumberValue?: number; // maximum value of whatever is being validated  
+  &nbsp;&nbsp;exactNumberValue?: number; // required exact value of whatever is being validated  
+  &nbsp;&nbsp;validProperties?: string[]; // valid properties of Objects being validated  
+  &nbsp;&nbsp;validValues?: any[]; // valid values of Arrays being validated  
+  &nbsp;&nbsp;validValueTypes?: string[]; // valid value types of whatever is being validated  
+  &nbsp;&nbsp;name?: string; // used for error messages  
+  &nbsp;&nbsp;shouldThrow?: boolean; // if true, the class will throw an error if the validation fails  
+};  
+none of the properties are required, but if you don't provide them, the corresponding methods will not work as expected.
 
 ### Methods
 
