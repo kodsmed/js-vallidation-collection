@@ -79,7 +79,7 @@ describe('isString() validator', () => {
       { input: 'hel', expected: true },
       { input: 'he', expected: true }
     ]
-    runValidationTests('withMaximumLength', testCases, { name: 'test', maximumLength: 5 })
+    runValidationTests('withMaximumLength', testCases, { maximumLength: 5 })
   })
   describe('isString.withExactLength() validator', () => {
     const testCases = [
@@ -91,7 +91,7 @@ describe('isString() validator', () => {
       { input: 'hel', expected: true },
       { input: 'he', expected: false }
     ]
-    runValidationTests('withExactLength', testCases, { name: 'test', exactLength: 3 })
+    runValidationTests('withExactLength', testCases, { exactLength: 3 })
 
   }),
 

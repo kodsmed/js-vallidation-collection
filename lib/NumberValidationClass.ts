@@ -1,6 +1,6 @@
-import { BaseValidationClass, ArgumentObject, ErroneousData, What } from './BaseValidationClass';
+import { BaseValidationClass, ArgumentObject, ErroneousData, What, divisibleByArgument } from './BaseValidationClass';
 
-export type divisibleByArgument = { value: unknown, divisor: number }
+
 export class NumberValidationClass extends BaseValidationClass {
   constructor(argumentObject: ArgumentObject) {
     super(argumentObject);

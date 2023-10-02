@@ -16,8 +16,13 @@ export class ArrayValidationClass extends BaseValidationClass {
   }
 
   type(unknownData: unknown): boolean {
-    const result = Array.isArray(unknownData);
-    if (!result) {
+    const isInvalid = this.isNullOrUndefined(unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    const validArray  = Array.isArray(unknownData);
+
+    if (!validArray) {
       this.problems.push({
         what: What.unexpectedType,
         in: 'Array',
@@ -123,12 +128,65 @@ export class ArrayValidationClass extends BaseValidationClass {
     return this.isExpectedContentType(unknownData, (item: any) => item instanceof Date, 'Date')
   }
 
-  private isExpectedContent(unknownData: unknown, validatorInstance: StringValidationClass|NumberValidationClass|ObjectValidationClass|ArrayValidationClass, expected: string): boolean {
-    let result = this.type(unknownData);
+  thatMustHaveSanctionedValues(unknownData: unknown): boolean {
+    const isArray = this.type(unknownData);
+    if (!isArray) {
+      return false;
+    }
+    const dataArray = unknownData as Array<any>;
+    let result = true;
+    for (let index = 0; index < dataArray.length; index++) {
+      const data = dataArray[index];
+      if (!this.validValues.includes(data)) {
+        this.problems.push({
+          what: What.unexpectedValues,
+          in: 'Array',
+          is: data.toString(),
+          expected: this.validValues.join(', '),
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        });
+        result = false;
+      }
+    }
     if (!result) {
+      this.handleValidationFailure()
+    }
+    return result;
+  }
+
+  thatMustHaveSanctionedValueTypes(unknownData: unknown): boolean {
+    const isArray = this.type(unknownData);
+    if (!isArray) {
+      return false;
+    }
+    const dataArray = unknownData as Array<any>;
+    let result = true;
+    for (let index = 0; index < dataArray.length; index++) {
+      const data = dataArray[index];
+      if (!this.validValueTypes.includes(typeof data)) {
+        this.problems.push({
+          what: What.unexpectedValueTypes,
+          in: 'Array',
+          is: typeof data,
+          expected: this.validValueTypes.join(', '),
+          ...(this.name && this.name !== '' ? { name: this.name } : {})
+        });
+        result = false;
+      }
+    }
+    if(!result) {
+      this.handleValidationFailure()
+    }
+    return result;
+  }
+
+  private isExpectedContent(unknownData: unknown, validatorInstance: StringValidationClass|NumberValidationClass|ObjectValidationClass|ArrayValidationClass, expected: string): boolean {
+    const isArray = this.type(unknownData);
+    if (!isArray) {
       return false;
     }
     let endResult = true
+    let result
     const data = unknownData as Array<any>;
     for (let index = 0; index < data.length; index++) {
       result = validatorInstance.type(data[index]);

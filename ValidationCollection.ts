@@ -20,10 +20,10 @@
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import {  ArgumentObject, ErroneousData } from './lib/BaseValidationClass';
+import {  ArgumentObject, ErroneousData, divisibleByArgument } from './lib/BaseValidationClass';
 import { ArrayValidationClass } from './lib/ArrayValidationClass';
 import { StringValidationClass } from './lib/StringValidationClass';
-import { NumberValidationClass, divisibleByArgument } from './lib/NumberValidationClass';
+import { NumberValidationClass } from './lib/NumberValidationClass';
 import { ObjectValidationClass } from './lib/ObjectValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 
@@ -235,6 +235,11 @@ export class ValidationCollection {
         thatMustHaveSanctionedValueTypes(unknownData: unknown):boolean {
           return self.objectValidationClass.thatMustHaveSanctionedValueTypes(unknownData)
         }
+      },
+      {
+        thatIsInstanceOf (unknownData: unknown, classType: any): boolean {
+          return self.objectValidationClass.thatIsInstanceOf(unknownData, classType)
+        }
       }
     )
     return callableObject
@@ -244,7 +249,7 @@ export class ValidationCollection {
     const self = this
     const callableObject : CallableArrayValidatorObject = Object.assign(
       function (unknownData: unknown): boolean {
-        return self.objectValidationClass.type(unknownData)
+        return self.arrayValidationClass.type(unknownData)
       },
       {
         withMinimumLength(unknownData: unknown):boolean {
@@ -299,6 +304,16 @@ export class ValidationCollection {
       {
         ofDates(unknownData: unknown):boolean {
           return self.arrayValidationClass.ofDates(unknownData)
+        }
+      },
+      {
+        thatMustHaveSanctionedValues(unknownData: unknown):boolean {
+          return self.arrayValidationClass.thatMustHaveSanctionedValues(unknownData)
+        }
+      },
+      {
+        thatMustHaveSanctionedValueTypes(unknownData: unknown):boolean {
+          return self.arrayValidationClass.thatMustHaveSanctionedValueTypes(unknownData)
         }
       }
     )

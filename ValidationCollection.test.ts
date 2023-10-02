@@ -1,4 +1,5 @@
 import { ValidationCollection } from './ValidationCollection';
+import { ArgumentObject, ErroneousData, What } from './lib/BaseValidationClass';
 
 describe('Validation Collection Test suit', () => {
   describe('Constructor', () => {
@@ -114,6 +115,60 @@ describe('Validation Collection Test suit', () => {
     it('should return false if shouldThrow is false', () => {
       const validationCollection = new ValidationCollection({ shouldThrow: false });
       expect(validationCollection.shouldThrowErrors).toBe(false)
+    })
+  })
+
+  describe ('get rules', () => {
+    it('should return an object with the rules', () => {
+      const validationCollection = new ValidationCollection({ name: 'a' });
+      const rules = validationCollection.rules
+      const expectedRules: ArgumentObject = {
+        minimumLength : 0,
+        maximumLength : Number.MAX_SAFE_INTEGER,
+        exactLength :  -1,
+        minimumNumberValue : Number.MIN_SAFE_INTEGER,
+        maximumNumberValue : Number.MAX_SAFE_INTEGER,
+        exactNumberValue : -1,
+        validProperties : [],
+        validValues : [],
+        validValueTypes : [],
+        name : 'a',
+        shouldThrow :  false
+      }
+      expect(rules).toMatchObject(expectedRules)
+    })
+  })
+
+  describe('get report', () => {
+    it('should return an array of ErroneousData', () => {
+      const validationCollection = new ValidationCollection({});
+      let report = validationCollection.report
+      expect(report).toBeInstanceOf(Array)
+      expect(report.length).toBe(0)
+      validationCollection.isNumber('problem')
+      report = validationCollection.report
+      expect(report).toBeInstanceOf(Array)
+      expect(report.length).toBe(1)
+      expect(report[0]).toMatchObject({
+        what: What.unexpectedType,
+        in: 'number',
+        is: 'string',
+        expected: 'number'
+      })
+    })
+  })
+  describe('get reportAsString', () => {
+    it('should return a string', () => {
+      let validationCollection = new ValidationCollection({});
+      let report = validationCollection.reportAsString
+      expect(report).toBe('')
+      validationCollection.isNumber('problem')
+      report = validationCollection.reportAsString
+      expect(report).toBe('unexpected type failure in number, is string, expected number\n')
+      validationCollection = new ValidationCollection({name : 'a test'});
+      validationCollection.isNumber('problem')
+      report = validationCollection.reportAsString
+      expect(report).toBe('a test: unexpected type failure in number, is string, expected number\n')
     })
   })
 })

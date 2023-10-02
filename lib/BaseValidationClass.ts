@@ -12,6 +12,8 @@ export type ArgumentObject = {
   shouldThrow?: boolean;
 };
 
+export type divisibleByArgument = { value: unknown, divisor: number }
+
 export type ErroneousData = {name?: string, what: string, in: string, at?: number, is?: string, expected?: string}
 export enum What {
   unexpectedType = 'unexpected type',
@@ -120,9 +122,11 @@ export class BaseValidationClass {
     const reports: ErroneousData[] = this.report
     let resultString = ''
     for (let i = 0; i < reports.length; i++) {
-      const stringToAdd = `${reports[i].name ? `{$reports[i].name}: ` : ''}`
-        + `${reports[i].what} failure in ${reports[i].in}`
-        + `${reports[i].at ? ` at ${reports[i].at}, is ${reports[i].is},` : ''}`
+      const stringToAdd =
+      `${reports[i].name ? `${reports[i].name}: ` : ''}`
+        + `${reports[i].what} failure in ${reports[i].in},`
+        + `${reports[i].at ? ` at ${reports[i].at},` : ''}`
+        + `${reports[i].is ? ` is ${reports[i].is},` : ''}`
         + `${reports[i].expected ? ` expected ${reports[i].expected}` : ''}`
         + `\n`
       resultString += stringToAdd
@@ -159,28 +163,6 @@ export class BaseValidationClass {
       const message = this.reportAsString
       throw new Error(message)
     }
-  }
-
-
-  isOfValidValueType (unknownData: unknown): boolean {
-    let result = this.isNullOrUndefined(unknownData)
-    if (!result) {
-      return false;
-    }
-    if (!this.validValueTypes.includes(typeof unknownData)) {
-      result = false
-      this.problems.push({
-        what: What.unexpectedValueTypes,
-        in: typeof unknownData as string,
-        is: typeof unknownData as string,
-        expected: this.validValueTypes.join(', '),
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      })
-    }
-    if (!result) {
-      this.handleValidationFailure()
-    }
-    return result
   }
 
   protected isNullOrUndefined (unknownData: unknown): boolean {

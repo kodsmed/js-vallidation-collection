@@ -30,6 +30,7 @@ export interface CallableNumberValidatorObject extends CallableValidatorObject{
   thatIsNotZero(unknownData: unknown): boolean;
   thatIsNotOne(unknownData: unknown): boolean;
   thatIsEvenlyDivisible(unknownData: unknown): boolean;
+  thatIsEvenlyDivisibleBy(unknownData: any): boolean;
   thatIsAPrimeNumber(unknownData: unknown): boolean;
   thatIsNotAPrimeNumber(unknownData: unknown): boolean;
 }
@@ -56,4 +57,6 @@ export interface CallableArrayValidatorObject extends CallableValidatorObject {
   ofFunctions(unknownData: unknown): boolean;
   ofSymbols(unknownData: unknown): boolean;
   ofDates(unknownData: unknown): boolean;
+  thatMustHaveSanctionedValues(unknownData: unknown): boolean;
+  thatMustHaveSanctionedValueTypes(unknownData: unknown): boolean;
 }
