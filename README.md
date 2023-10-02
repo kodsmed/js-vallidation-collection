@@ -30,9 +30,9 @@ console.log(result); // true
 let result = validator.isString(123);
 console.log(result); // false
 const validator = new validationCollection({ minimumLength: 3 }); // note that the constructor takes an object as an argument
-let result = validator.isString('hello world');
+let result = validator.isString.withMinimumLength('hello world');
 console.log(result); // true
-let result = validator.isString('hi');
+let result = validator.isString.withMinimumLength('hi');
 console.log(result); // false
 ````
 

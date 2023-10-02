@@ -1,6 +1,6 @@
 {
   "name": "validation-collection",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Jimmy Karlsson",
   "description": "a collection of a wide range of validation methods for arrays, objects, numbers and strings in typescript/javascript.",
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "jest",
     "build": "tsc"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "ts-node": "^10.9.1"
   },
@@ -21,5 +21,6 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
-  }
+  },
+  "keywords": ["validation", "validation-collection", "validation methods", "validation functions", "validation for typescript", "validation for javascript", "validation for arrays", "validation for objects", "validation for numbers", "validation for strings"]
 }
