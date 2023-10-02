@@ -20,9 +20,23 @@ npm install validation-collection
 import Validation from 'validation';
 ````
 
+## State of the project
+
+Project is stable and ready for use.  
+(but don't trust your bank account to my 30hours of coding.)
+
+I will continue to add more methods to the class as I find the need for them, or they are requested.  
+This will likely be the only validation ts/js class that I will need for the foreseeable future,  
+so as long as I have the time, I will continue to develop it.
+
 ## Support
 
-I develop this package in my spare time, so I can't guarantee that I will be able to help you with any issues you might encounter. But I will do my best to help you out. If you have any questions, suggestions or issues, please create an issue on the [github repository](https://github.com/kodsmed/js-vallidation-collection/issues). I will try to respond as soon as possible.
+The package comes packed with 6 automated test-suits with a whooping 4203 tests... However,  
+I develop this package in my spare time, so it is fully possible that I have missed something.  
+Also, I can't guarantee that I will be able to help you with any issues you might encounter.  
+However, I will welcome your feedback, I will do my best to help you out if you have any questions, suggestions or issues.  
+Please create an issue on the [github repository](https://github.com/kodsmed/js-vallidation-collection/issues).  
+I will try to respond as soon as possible.
 
 ## License
 

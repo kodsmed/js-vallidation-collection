@@ -1,4 +1,4 @@
-import { ValidationCollection } from '../src/ValidationCollection';
+import ValidationCollection from '../src/ValidationCollection';
 import { ArgumentObject, ErroneousData, What } from '../src/lib/BaseValidationClass';
 
 describe('Validation Collection Test suit', () => {

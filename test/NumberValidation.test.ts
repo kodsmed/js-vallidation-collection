@@ -1,4 +1,4 @@
-import { ValidationCollection } from "../src/ValidationCollection";
+import  ValidationCollection  from "../src/ValidationCollection";
 import { ArgumentObject } from "../src/lib/BaseValidationClass";
 function runValidationTests (method: string, testCases: Array<{ input: unknown, expected: boolean }>, argument: ArgumentObject)  {
   describe(`${method} validator`, () => {

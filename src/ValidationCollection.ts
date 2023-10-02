@@ -20,14 +20,14 @@
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import {  ArgumentObject, ErroneousData, divisibleByArgument } from './lib/BaseValidationClass';
+import {  ArgumentObject, divisibleByArgument } from './lib/BaseValidationClass';
 import { ArrayValidationClass } from './lib/ArrayValidationClass';
 import { StringValidationClass } from './lib/StringValidationClass';
 import { NumberValidationClass } from './lib/NumberValidationClass';
 import { ObjectValidationClass } from './lib/ObjectValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 
-export class ValidationCollection {
+export default class ValidationCollection {
   private stringValidationClass: StringValidationClass
   private numberValidationClass: NumberValidationClass
   private objectValidationClass: ObjectValidationClass
@@ -364,5 +364,3 @@ export class ValidationCollection {
     return this.stringValidationClass.rules
   }
 }
-
-export default ValidationCollection;
