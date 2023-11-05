@@ -1,4 +1,4 @@
-import { BaseValidationClass } from './BaseValidationClass';
+import { BaseValidationClass } from './BaseValidationClass.js';
 export declare class StringValidationClass extends BaseValidationClass {
     constructor();
     type(): boolean;

@@ -9,10 +9,10 @@
  * @property {string} name - Name of the parameter that is being validated.
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
-import { ArrayValidationClass } from './lib/ArrayValidationClass';
-import { StringValidationClass } from './lib/StringValidationClass';
-import { NumberValidationClass } from './lib/NumberValidationClass';
-import { ObjectValidationClass } from './lib/ObjectValidationClass';
+import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
+import { StringValidationClass } from './lib/StringValidationClass.js';
+import { NumberValidationClass } from './lib/NumberValidationClass.js';
+import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
 export default function ValidationCollection() {
     const stringValidationClass = new StringValidationClass();
     const numberValidationClass = new NumberValidationClass();

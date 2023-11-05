@@ -1,4 +1,4 @@
-import { BaseValidationClass, What } from './BaseValidationClass';
+import { BaseValidationClass, What } from './BaseValidationClass.js';
 export class NumberValidationClass extends BaseValidationClass {
     constructor() {
         super();
