@@ -372,4 +372,6 @@ export default function ValidationCollection () {
       throw new Error(callableFunction.reportAsString())
     }
   }
+
+  return callableFunction
 }
