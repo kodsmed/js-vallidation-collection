@@ -28,7 +28,8 @@ export declare class BaseValidationClass {
     constructor();
     clearProblems(): void;
     set data(unknownData: unknown);
-    dataName(name: string): void;
+    set validatorName(name: string);
+    get validatorName(): string;
     get report(): Array<ErroneousData>;
     get reportAsString(): string;
     get hasProblems(): boolean;

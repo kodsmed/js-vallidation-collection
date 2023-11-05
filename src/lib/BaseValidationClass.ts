@@ -34,35 +34,35 @@ export class BaseValidationClass {
     this.unknownData = unknownData
   }
 
-  dataName (name: string) {
+  set validatorName(name) {
     if (name === undefined || name === null) {
-      this.name = ''
-      return
+        this.validatorName = '';
+        return;
     }
     if (typeof name !== 'string') {
-      throw new Error('dataName must be a string')
+        throw new Error('dataName must be a string');
     }
-
-    if (
-      name.includes(':')
-      || name.includes(',')
-      || name.includes('\n')
-      || name.includes('\r')
-      || name.includes('\t')
-      || name.includes('\v')
-      || name.includes('\f')
-      || name.includes('\b')
-      || name.includes('\0')
-      || name.includes('\u2028')
-      || name.includes('\u2029')
-      || name.includes('<')
-      || name.includes('>')
-    ){
-      throw new Error('dataName must not contain any of the following characters: : , \n \r \t \v \f \b \0 \u2028 \u2029 < >')
+    if (name.includes(':')
+        || name.includes(',')
+        || name.includes('\n')
+        || name.includes('\r')
+        || name.includes('\t')
+        || name.includes('\v')
+        || name.includes('\f')
+        || name.includes('\b')
+        || name.includes('\0')
+        || name.includes('\u2028')
+        || name.includes('\u2029')
+        || name.includes('<')
+        || name.includes('>')) {
+        throw new Error('dataName must not contain any of the following characters: : , \n \r \t \v \f \b \0 \u2028 \u2029 < >');
     }
+    this.name = name;
+}
 
-    this.name = name
-  }
+  get validatorName() {
+    return this.name;
+}
 
   get report (): Array<ErroneousData> {
     return [...this.problems]

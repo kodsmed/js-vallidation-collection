@@ -48,10 +48,10 @@ export class ValidationCollection {
 
   static setName(name: string) {
     ValidationCollection.validatorName = name
-    ValidationCollection.stringValidationClass.dataName(name)
-    ValidationCollection.numberValidationClass.dataName(name)
-    ValidationCollection.objectValidationClass.dataName(name)
-    ValidationCollection.arrayValidationClass.dataName(name)
+    ValidationCollection.stringValidationClass.validatorName = name
+    ValidationCollection.numberValidationClass.validatorName = name
+    ValidationCollection.objectValidationClass.validatorName = name
+    ValidationCollection.arrayValidationClass.validatorName = name
   }
 
 

@@ -28,9 +28,9 @@ export class BaseValidationClass {
     set data(unknownData) {
         this.unknownData = unknownData;
     }
-    dataName(name) {
+    set validatorName(name) {
         if (name === undefined || name === null) {
-            this.name = '';
+            this.validatorName = '';
             return;
         }
         if (typeof name !== 'string') {
@@ -52,6 +52,9 @@ export class BaseValidationClass {
             throw new Error('dataName must not contain any of the following characters: : , \n \r \t \v \f \b \0 \u2028 \u2029 < >');
         }
         this.name = name;
+    }
+    get validatorName() {
+        return this.name;
     }
     get report() {
         return [...this.problems];
