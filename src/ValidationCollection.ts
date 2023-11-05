@@ -19,6 +19,7 @@ import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableSt
 
 export class ValidationCollection {
   private static throwErrors: boolean = false
+  private static validatorName: string = ''
   private static stringValidationClass: StringValidationClass = new StringValidationClass()
   private static numberValidationClass: NumberValidationClass = new NumberValidationClass()
   private static objectValidationClass: ObjectValidationClass = new ObjectValidationClass()
@@ -29,6 +30,8 @@ export class ValidationCollection {
     ValidationCollection.numberValidationClass.data = unknownData
     ValidationCollection.objectValidationClass.data = unknownData
     ValidationCollection.arrayValidationClass.data = unknownData
+    ValidationCollection.setName(ValidationCollection.validatorName)
+    ValidationCollection.setThrowsErrors(ValidationCollection.throwErrors)
   }
 
   static createInstance(unknownData: unknown = undefined): ValidationCollection {
@@ -44,6 +47,7 @@ export class ValidationCollection {
   }
 
   static setName(name: string) {
+    ValidationCollection.validatorName = name
     ValidationCollection.stringValidationClass.dataName = name
     ValidationCollection.numberValidationClass.dataName = name
     ValidationCollection.objectValidationClass.dataName = name

@@ -1,5 +1,5 @@
-import { ValidationCollection } from './ValidationCollection';
-import { ErroneousData } from './lib/BaseValidationClass';
+import { ValidationCollection } from './ValidationCollection.js';
+import { ErroneousData } from './lib/BaseValidationClass.js';
 declare const validate: {
     (unknownData?: unknown): ValidationCollection;
     setName(name: string): void;

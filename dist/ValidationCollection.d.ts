@@ -13,6 +13,7 @@ import { ErroneousData } from './lib/BaseValidationClass.js';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
 export declare class ValidationCollection {
     private static throwErrors;
+    private static validatorName;
     private static stringValidationClass;
     private static numberValidationClass;
     private static objectValidationClass;

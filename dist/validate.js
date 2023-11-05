@@ -1,4 +1,4 @@
-import { ValidationCollection } from './ValidationCollection';
+import { ValidationCollection } from './ValidationCollection.js';
 const validate = (unknownData) => {
     return ValidationCollection.createInstance(unknownData);
 };

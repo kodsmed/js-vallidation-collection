@@ -19,6 +19,8 @@ export class ValidationCollection {
         ValidationCollection.numberValidationClass.data = unknownData;
         ValidationCollection.objectValidationClass.data = unknownData;
         ValidationCollection.arrayValidationClass.data = unknownData;
+        ValidationCollection.setName(ValidationCollection.validatorName);
+        ValidationCollection.setThrowsErrors(ValidationCollection.throwErrors);
     }
     static createInstance(unknownData = undefined) {
         return new ValidationCollection(unknownData);
@@ -31,6 +33,7 @@ export class ValidationCollection {
         ValidationCollection.arrayValidationClass.shouldThrowErrors = shouldThrow;
     }
     static setName(name) {
+        ValidationCollection.validatorName = name;
         ValidationCollection.stringValidationClass.dataName = name;
         ValidationCollection.numberValidationClass.dataName = name;
         ValidationCollection.objectValidationClass.dataName = name;
@@ -398,6 +401,7 @@ export class ValidationCollection {
     }
 }
 ValidationCollection.throwErrors = false;
+ValidationCollection.validatorName = '';
 ValidationCollection.stringValidationClass = new StringValidationClass();
 ValidationCollection.numberValidationClass = new NumberValidationClass();
 ValidationCollection.objectValidationClass = new ObjectValidationClass();
