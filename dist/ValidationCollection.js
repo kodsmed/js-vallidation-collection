@@ -34,10 +34,10 @@ export class ValidationCollection {
     }
     static setName(name) {
         ValidationCollection.validatorName = name;
-        ValidationCollection.stringValidationClass.dataName = name;
-        ValidationCollection.numberValidationClass.dataName = name;
-        ValidationCollection.objectValidationClass.dataName = name;
-        ValidationCollection.arrayValidationClass.dataName = name;
+        ValidationCollection.stringValidationClass.dataName(name);
+        ValidationCollection.numberValidationClass.dataName(name);
+        ValidationCollection.objectValidationClass.dataName(name);
+        ValidationCollection.arrayValidationClass.dataName(name);
     }
     isString() {
         const self = ValidationCollection;

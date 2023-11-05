@@ -28,7 +28,7 @@ export class BaseValidationClass {
     set data(unknownData) {
         this.unknownData = unknownData;
     }
-    set dataName(name) {
+    dataName(name) {
         if (name === undefined || name === null) {
             this.name = '';
             return;
