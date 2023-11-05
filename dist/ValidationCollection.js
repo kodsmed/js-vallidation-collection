@@ -13,8 +13,12 @@ import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
 import { StringValidationClass } from './lib/StringValidationClass.js';
 import { NumberValidationClass } from './lib/NumberValidationClass.js';
 import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
-export default class ValidationCollection {
-    constructor(unknownData) {
+const validate = function (unknownData = undefined) {
+    return new ValidationCollection(unknownData);
+};
+export default validate;
+export class ValidationCollection {
+    constructor(unknownData = undefined) {
         this.stringValidationClass = new StringValidationClass();
         this.numberValidationClass = new NumberValidationClass();
         this.objectValidationClass = new ObjectValidationClass();
@@ -36,7 +40,7 @@ export default class ValidationCollection {
         this.objectValidationClass.dataName = name;
         this.arrayValidationClass.dataName = name;
     }
-    get isString() {
+    isString() {
         const self = this;
         const callableObject = Object.assign(function () {
             self.stringValidationClass.type();
@@ -104,7 +108,7 @@ export default class ValidationCollection {
         });
         return callableObject;
     }
-    get isNumber() {
+    isNumber() {
         const self = this;
         const callableObject = Object.assign(function () {
             self.numberValidationClass.type();
@@ -187,7 +191,7 @@ export default class ValidationCollection {
         });
         return callableObject;
     }
-    get isObject() {
+    isObject() {
         const self = this;
         const callableObject = Object.assign(function () {
             self.objectValidationClass.type();
@@ -235,7 +239,7 @@ export default class ValidationCollection {
         });
         return callableObject;
     }
-    get isArray() {
+    isArray() {
         const self = this;
         const callableObject = Object.assign(function () {
             self.arrayValidationClass.type();
@@ -308,7 +312,7 @@ export default class ValidationCollection {
         });
         return callableObject;
     }
-    get report() {
+    report() {
         const arrayProblems = this.arrayValidationClass.report;
         const objectProblems = this.objectValidationClass.report;
         const stringProblems = this.stringValidationClass.report;
@@ -316,7 +320,7 @@ export default class ValidationCollection {
         const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems);
         return problems;
     }
-    get reportAsString() {
+    reportAsString() {
         const arrayProblems = this.arrayValidationClass.reportAsString;
         const objectProblems = this.objectValidationClass.reportAsString;
         const stringProblems = this.stringValidationClass.reportAsString;
@@ -330,7 +334,7 @@ export default class ValidationCollection {
         this.stringValidationClass.clearProblems();
         this.numberValidationClass.clearProblems();
     }
-    get hasProblems() {
+    hasProblems() {
         const problems = this.arrayValidationClass.hasProblems
             || this.objectValidationClass.hasProblems
             || this.stringValidationClass.hasProblems
@@ -350,7 +354,7 @@ export default class ValidationCollection {
             || this.numberValidationClass.hasProblems;
         if (problemsEncountered) {
             if (this.throwsErrors) {
-                throw new Error(this.reportAsString);
+                throw new Error(this.reportAsString());
             }
             return false;
         }

@@ -1,3 +1,7 @@
+import { ValidationCollection } from "../ValidationCollection.js";
+export interface Callable {
+    (unknownData: unknown): ValidationCollection;
+}
 export interface CallableValidatorObject {
     confirm(): boolean;
     clearProblems(): void;

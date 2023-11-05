@@ -15,15 +15,22 @@ import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
 import { StringValidationClass } from './lib/StringValidationClass.js';
 import { NumberValidationClass } from './lib/NumberValidationClass.js';
 import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
-import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
+import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject, Callable } from './interface/CallableObject.js';
 
-export default class ValidationCollection {
+
+const validate = function (unknownData: unknown = undefined): ValidationCollection {
+  return new ValidationCollection(unknownData)
+}
+
+export default validate
+
+export class ValidationCollection {
   private stringValidationClass: StringValidationClass = new StringValidationClass()
   private numberValidationClass: NumberValidationClass = new NumberValidationClass()
   private objectValidationClass: ObjectValidationClass = new ObjectValidationClass()
   private arrayValidationClass: ArrayValidationClass = new ArrayValidationClass()
 
-  constructor(unknownData: unknown) {
+  constructor(unknownData: unknown = undefined) {
     this.stringValidationClass.data = unknownData
     this.numberValidationClass.data = unknownData
     this.objectValidationClass.data = unknownData
@@ -45,7 +52,7 @@ export default class ValidationCollection {
   }
 
 
-  get isString(): CallableStringValidatorObject {
+  isString(): CallableStringValidatorObject {
     const self = this
     const callableObject: CallableStringValidatorObject = Object.assign(
       function (): CallableStringValidatorObject {
@@ -128,7 +135,7 @@ export default class ValidationCollection {
     return callableObject
   }
 
-  get isNumber(): CallableNumberValidatorObject {
+  isNumber(): CallableNumberValidatorObject {
     const self = this
     const callableObject: CallableNumberValidatorObject = Object.assign(
       function (): CallableNumberValidatorObject {
@@ -229,7 +236,7 @@ export default class ValidationCollection {
     return callableObject
   }
 
-  get isObject(): CallableObjectValidatorObject {
+  isObject(): CallableObjectValidatorObject {
     const self = this
     const callableObject: CallableObjectValidatorObject = Object.assign(
       function (): CallableObjectValidatorObject {
@@ -288,7 +295,7 @@ export default class ValidationCollection {
     return callableObject
   }
 
-  get isArray(): CallableArrayValidatorObject {
+  isArray(): CallableArrayValidatorObject {
     const self = this
     const callableObject: CallableArrayValidatorObject = Object.assign(
       function (): CallableArrayValidatorObject {
@@ -377,7 +384,7 @@ export default class ValidationCollection {
     return callableObject
   }
 
-  get report(): Array<ErroneousData> {
+  report(): Array<ErroneousData> {
     const arrayProblems = this.arrayValidationClass.report
     const objectProblems = this.objectValidationClass.report
     const stringProblems = this.stringValidationClass.report
@@ -386,7 +393,7 @@ export default class ValidationCollection {
     return problems
   }
 
-  get reportAsString(): string {
+  reportAsString(): string {
     const arrayProblems = this.arrayValidationClass.reportAsString
     const objectProblems = this.objectValidationClass.reportAsString
     const stringProblems = this.stringValidationClass.reportAsString
@@ -402,7 +409,7 @@ export default class ValidationCollection {
     this.numberValidationClass.clearProblems()
   }
 
-  get hasProblems(): boolean {
+  hasProblems(): boolean {
     const problems = this.arrayValidationClass.hasProblems
       || this.objectValidationClass.hasProblems
       || this.stringValidationClass.hasProblems
@@ -426,10 +433,11 @@ export default class ValidationCollection {
 
     if (problemsEncountered) {
       if (this.throwsErrors) {
-        throw new Error(this.reportAsString)
+        throw new Error(this.reportAsString())
       }
       return false
     }
     return true
   }
 }
+

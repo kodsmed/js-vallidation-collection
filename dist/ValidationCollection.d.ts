@@ -11,22 +11,24 @@
  */
 import { ErroneousData } from './lib/BaseValidationClass.js';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
-export default class ValidationCollection {
+declare const validate: (unknownData?: unknown) => ValidationCollection;
+export default validate;
+export declare class ValidationCollection {
     private stringValidationClass;
     private numberValidationClass;
     private objectValidationClass;
     private arrayValidationClass;
-    constructor(unknownData: unknown);
+    constructor(unknownData?: unknown);
     set throwsErrors(shouldThrow: boolean);
     setName(name: string): void;
-    get isString(): CallableStringValidatorObject;
-    get isNumber(): CallableNumberValidatorObject;
-    get isObject(): CallableObjectValidatorObject;
-    get isArray(): CallableArrayValidatorObject;
-    get report(): Array<ErroneousData>;
-    get reportAsString(): string;
+    isString(): CallableStringValidatorObject;
+    isNumber(): CallableNumberValidatorObject;
+    isObject(): CallableObjectValidatorObject;
+    isArray(): CallableArrayValidatorObject;
+    report(): Array<ErroneousData>;
+    reportAsString(): string;
     clearProblems(): void;
-    get hasProblems(): boolean;
+    hasProblems(): boolean;
     get throwsErrors(): boolean;
     confirm(): boolean;
 }

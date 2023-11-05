@@ -26,5 +26,16 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
-  "keywords": ["validation", "validation-collection", "validation methods", "validation functions", "validation for typescript", "validation for javascript", "validation for arrays", "validation for objects", "validation for numbers", "validation for strings"]
+  "keywords": [
+    "validation",
+    "validation-collection",
+    "validation methods",
+    "validation functions",
+    "validation for typescript",
+    "validation for javascript",
+    "validation for arrays",
+    "validation for objects",
+    "validation for numbers",
+    "validation for strings"
+  ]
 }
