@@ -4,7 +4,10 @@
   "author": "Jimmy Karlsson",
   "description": "a collection of a wide range of validation methods for arrays, objects, numbers and strings in typescript/javascript.",
   "type": "module",
-  "main": "./dist/ValidationCollection.js",
+  "exports": {
+    "./js": "./dist/ValidationCollection.js",
+    "./ts": "./src/ValidationCollection.ts"
+  },
   "types": "./dist/ValidationCollection.d.ts",
   "scripts": {
     "test": "jest",
