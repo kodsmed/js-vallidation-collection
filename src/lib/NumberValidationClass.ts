@@ -1,12 +1,44 @@
-import { BaseValidationClass, ArgumentObject, ErroneousData, What, divisibleByArgument } from './BaseValidationClass';
+import { BaseValidationClass, ArgumentObject, ErroneousData, What } from './BaseValidationClass';
 
 
 export class NumberValidationClass extends BaseValidationClass {
-  constructor(argumentObject: ArgumentObject) {
-    super(argumentObject);
+  constructor() {
+    super();
   }
 
-  type(unknownData: unknown): boolean {
+  type(): boolean {
+    const invalidType = this.isNullOrUndefined(this.unknownData)
+    if (invalidType) {
+      this.handleValidationFailure()
+      return false;
+    }
+    const isNumber = typeof this.unknownData === 'number';
+    if (!isNumber) {
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'number',
+        is: typeof this.unknownData,
+        expected: 'number',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
+      return false;
+    }
+    if(isNaN(this.unknownData as number)) {
+      this.problems.push({
+        what: What.NaNEncountered,
+        in: 'number',
+        is: 'NaN',
+        expected: 'number',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
+      return false;
+    }
+    return true;
+  }
+
+  internalType(unknownData: unknown): boolean {
     const invalidType = this.isNullOrUndefined(unknownData)
     if (invalidType) {
       this.handleValidationFailure()
@@ -38,18 +70,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return true;
   }
 
-  thatIsPositive(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsPositive(): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const result = unknownData as number > 0;
+    const result = this.unknownData as number > 0;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: '> 0',
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -58,18 +90,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsNegative(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsNegative(): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const result = unknownData as number < 0;
+    const result = this.unknownData as number < 0;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: '< 0',
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -80,27 +112,27 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsBetweenMinMax(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsBetweenMinMax(minimumNumberValue: number, maximumNumberValue: number): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    let result = unknownData as number >= this.minimumNumberValue
+    let result = this.unknownData as number >= minimumNumberValue
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
-        expected: `> ${this.minimumNumberValue}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
+        expected: `> ${minimumNumberValue}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       this.handleValidationFailure()
       return false;
     }
-    result = unknownData as number <= this.maximumNumberValue;
+    result = this.unknownData as number <= maximumNumberValue;
     if (!result) {
-      this.problems.push({ what: What.unexpectedValues, in: typeof unknownData as string, is: `${unknownData}`, expected: `< ${this.maximumNumberValue}`});
+      this.problems.push({ what: What.unexpectedValues, in: typeof this.unknownData as string, is: `${this.unknownData}`, expected: `< ${maximumNumberValue}`});
     }
     if (!result) {
       this.handleValidationFailure()
@@ -108,19 +140,19 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsOverMinimum(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsOverMinimum(minimumValue: number): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const result = unknownData as number >= this.minimumNumberValue;
+    const result = this.unknownData as number >= minimumValue;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
-        expected: `> ${this.minimumNumberValue}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
+        expected: `> ${minimumValue}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -130,19 +162,19 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsUnderMaximum(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsUnderMaximum(maximumValue: number): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const result = unknownData as number <= this.maximumNumberValue;
+    const result = this.unknownData as number <= maximumValue;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
-        expected: `< ${this.maximumNumberValue}`
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
+        expected: `< ${maximumValue}`
       });
     }
     if (!result) {
@@ -151,20 +183,20 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsExactly(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsExactly(exactValue: number): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const unknownNumber = unknownData as number;
-    const result = unknownNumber === this.exactNumberValue;
+    const unknownNumber = this.unknownData as number;
+    const result = unknownNumber === exactValue;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
+        in: typeof this.unknownData as string,
         is: `${unknownNumber}`,
-        expected: `=== ${this.exactNumberValue}`,
+        expected: `=== ${exactValue}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -174,18 +206,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsEven(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsEven(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as number) % 2 === 0;
+    result = (this.unknownData as number) % 2 === 0;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `to be even`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -196,18 +228,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsOdd(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsOdd(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as number) % 2 === 1;
+    result = (this.unknownData as number) % 2 === 1;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `to be odd`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -218,18 +250,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsNotZero(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsNotZero(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = unknownData as number !== 0;
+    result = this.unknownData as number !== 0;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`, expected: `!== 0`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`, expected: `!== 0`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -239,18 +271,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsNotOne(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsNotOne(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = unknownData as number !== 1;
+    result = this.unknownData as number !== 1;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `!== 1`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -261,18 +293,18 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsNotNegativeOne(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsNotNegativeOne(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = unknownData as number !== -1;
+    result = this.unknownData as number !== -1;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `!== -1`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -283,20 +315,20 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsEvenlyDivisible(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsEvenlyDivisible(): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
     // find out if the number is evenly divisible by anything
-    const number = unknownData as number;
+    const number = this.unknownData as number;
     const isPrime = this.isPrime(number);
     if (isPrime && number % 2 !== 0) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `to be evenly divisible`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -306,22 +338,22 @@ export class NumberValidationClass extends BaseValidationClass {
     }
     return (number % 2 === 0) || !isPrime;
   }
-  thatIsEvenlyDivisibleBy(argument: divisibleByArgument): boolean {
-    let result = this.type(argument.value);
+  thatIsEvenlyDivisibleBy(divisor: number): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
 
-    const number = argument.value as number;
-    const remainder = number % argument.divisor;
+    const number = this.unknownData as number;
+    const remainder = number % divisor;
     result = remainder === 0;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof argument.value as string,
+        in: typeof this.unknownData as string,
         is: `${remainder}`,
-        expected: `to be evenly divisible by ${argument.divisor}`,
+        expected: `to be evenly divisible by ${divisor}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -331,19 +363,19 @@ export class NumberValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsAPrimeNumber(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsAPrimeNumber(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    const number = unknownData as number;
+    const number = this.unknownData as number;
     result = this.isPrime(number);
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `to be a prime number`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -355,19 +387,19 @@ export class NumberValidationClass extends BaseValidationClass {
 
   }
 
-  thatIsNotAPrimeNumber(unknownData: unknown): boolean {
-    let isNumber = this.type(unknownData);
+  thatIsNotAPrimeNumber(): boolean {
+    let isNumber = this.type();
     if (!isNumber) {
       this.handleValidationFailure()
       return false;
     }
-    const number = unknownData as number;
+    const number = this.unknownData as number;
     const isPrime = this.isPrime(number);
     if (isPrime) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: `${unknownData}`,
+        in: typeof this.unknownData as string,
+        is: `${this.unknownData}`,
         expected: `not to be a prime number`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });

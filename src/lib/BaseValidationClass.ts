@@ -12,8 +12,6 @@ export type ArgumentObject = {
   shouldThrow?: boolean;
 };
 
-export type divisibleByArgument = { value: unknown, divisor: number }
-
 export type ErroneousData = {name?: string, what: string, in: string, at?: number, is?: string, expected?: string}
 export enum What {
   unexpectedType = 'unexpected type',
@@ -31,87 +29,53 @@ export enum What {
 }
 
 export class BaseValidationClass {
-  // rule properties
-  protected minimumLength : number = 0;
-  protected maximumLength : number = Number.MAX_SAFE_INTEGER;
-  protected exactLength : number = -1;
-  protected minimumNumberValue : number = Number.MIN_SAFE_INTEGER;
-  protected maximumNumberValue : number = Number.MAX_SAFE_INTEGER;
-  protected exactNumberValue : number = -1;
-  protected validProperties : Array<string> = [];
-  protected validValues : Array<any> = [];
-  protected validValueTypes : Array<string> = [];
+  //input properties
+  protected unknownData: unknown = undefined
   protected name : string = ''
   protected shouldThrow : boolean = false
 
   //output properties
   protected problems: Array<ErroneousData> = []
 
-  constructor(argumentObject: ArgumentObject = {}) {
-    for (const property in argumentObject) {
-      if (Object.prototype.hasOwnProperty.call(argumentObject, property)) {
-          switch (property) {
-            //numbers
-            case 'minimumLength':
-            case 'maximumLength':
-            case 'exactLength':
-            case 'minimumNumberValue':
-            case 'maximumNumberValue':
-            case 'exactNumberValue':
-              const numVal = argumentObject[property as keyof ArgumentObject];
-              if (typeof numVal === 'number' && !isNaN(numVal) && numVal !== Infinity && numVal !== -Infinity && numVal > 0 && Number.isInteger(numVal)) {
-                (this as any)[property] = numVal;
-              } else{
-                throw new Error(`argumentObject contains an invalid property: ${property}`);
-              }
-              break;
-            // string Arrays
-            case 'validProperties':
-            case 'validValueTypes':
-              const strArrVal = argumentObject[property as keyof ArgumentObject];
-              if (Array.isArray(strArrVal) && strArrVal.every(item => typeof item === 'string')) {
-                (this as any)[property] = strArrVal;
-              } else {
-                throw new Error(`argumentObject contains an invalid property: ${property}`);
-              }
-              break;
-            // any Arrays
-            case 'validValues':
-              const anyArrVal = argumentObject[property as keyof ArgumentObject];
-              if (Array.isArray(anyArrVal)) {
-                (this as any)[property] = anyArrVal;
-              } else {
-                throw new Error(`argumentObject contains an invalid property: ${property}`);
-              }
-              break;
-            // boolean
-            case 'shouldThrow':
-              const boolVal = argumentObject[property as keyof ArgumentObject];
-              if (typeof boolVal === 'boolean') {
-                (this as any)[property] = boolVal;
-              } else {
-                throw new Error(`argumentObject contains an invalid property: ${property}`);
-              }
-              break;
-            // string
-            case 'name':
-              const strVal = argumentObject[property as keyof ArgumentObject];
-              if (typeof strVal === 'string') {
-                (this as any)[property] = strVal;
-              } else {
-                throw new Error(`argumentObject contains an invalid property: ${property}`);
-              }
-              break;
-            // default
-            default:
-              throw new Error(`argumentObject contains an invalid property: ${property}`);
-          } // switch
-        } // if
-      } // for
+  constructor() {
   } // constructor
 
   clearProblems () {
     this.problems = []
+  }
+
+  set data (unknownData: unknown) {
+    this.unknownData = unknownData
+  }
+
+  set dataName (name: string) {
+    if (name === undefined || name === null) {
+      this.name = ''
+      return
+    }
+    if (typeof name !== 'string') {
+      throw new Error('dataName must be a string')
+    }
+
+    if (
+      name.includes(':')
+      || name.includes(',')
+      || name.includes('\n')
+      || name.includes('\r')
+      || name.includes('\t')
+      || name.includes('\v')
+      || name.includes('\f')
+      || name.includes('\b')
+      || name.includes('\0')
+      || name.includes('\u2028')
+      || name.includes('\u2029')
+      || name.includes('<')
+      || name.includes('>')
+    ){
+      throw new Error('dataName must not contain any of the following characters: : , \n \r \t \v \f \b \0 \u2028 \u2029 < >')
+    }
+
+    this.name = name
   }
 
   get report (): Array<ErroneousData> {
@@ -142,20 +106,8 @@ export class BaseValidationClass {
     return this.shouldThrow
   }
 
-  get rules() : ArgumentObject {
-    return {
-      minimumLength: this.minimumLength,
-      maximumLength: this.maximumLength,
-      exactLength: this.exactLength,
-      minimumNumberValue: this.minimumNumberValue,
-      maximumNumberValue: this.maximumNumberValue,
-      exactNumberValue: this.exactNumberValue,
-      validProperties: this.validProperties,
-      validValues: this.validValues,
-      validValueTypes: this.validValueTypes,
-      name: this.name,
-      shouldThrow: this.shouldThrow
-    }
+  set shouldThrowErrors (value: boolean) {
+    this.shouldThrow = value
   }
 
   protected handleValidationFailure (): void {

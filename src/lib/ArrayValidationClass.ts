@@ -8,14 +8,35 @@ export class ArrayValidationClass extends BaseValidationClass {
   private stringValidator: StringValidationClass;
   private numberValidator: NumberValidationClass;
   private objectValidator: ObjectValidationClass;
-  constructor(argumentObject: ArgumentObject) {
-    super(argumentObject);
-    this.stringValidator = new StringValidationClass(argumentObject)
-    this.numberValidator = new NumberValidationClass(argumentObject)
-    this.objectValidator = new ObjectValidationClass(argumentObject)
+  constructor() {
+    super();
+    this.stringValidator = new StringValidationClass()
+    this.numberValidator = new NumberValidationClass()
+    this.objectValidator = new ObjectValidationClass()
   }
 
-  type(unknownData: unknown): boolean {
+  type(): boolean {
+    const isInvalid = this.isNullOrUndefined(this.unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    const validArray  = Array.isArray(this.unknownData);
+
+    if (!validArray) {
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'Array',
+        is: typeof this.unknownData,
+        expected: 'Array',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
+      return false;
+    }
+    return true;
+  }
+
+  internalType(unknownData: unknown): boolean {
     const isInvalid = this.isNullOrUndefined(unknownData)
     if (isInvalid) {
       return false;
@@ -36,18 +57,18 @@ export class ArrayValidationClass extends BaseValidationClass {
     return true;
   }
 
-  withMinimumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMinimumLength(minimumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const data = unknownData as Array<any>;
-    if (data.length < this.minimumLength) {
+    const data = this.unknownData as Array<any>;
+    if (data.length < minimumLength) {
       this.problems.push({
         what: What.tooShort,
         in: 'Array',
         is: data.length.toString(),
-        expected: this.minimumLength.toString(),
+        expected: minimumLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
@@ -56,18 +77,18 @@ export class ArrayValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withMaximumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMaximumLength(maximumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const data = unknownData as Array<any>;
-    if (data.length > this.maximumLength) {
+    const data = this.unknownData as Array<any>;
+    if (data.length > maximumLength) {
       this.problems.push({
         what: What.tooLong,
         in: 'Array',
         is: data.length.toString(),
-        expected: this.maximumLength.toString(),
+        expected: maximumLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
@@ -76,18 +97,18 @@ export class ArrayValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withExactLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withExactLength(exactLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const data = unknownData as Array<any>;
-    if (data.length !== this.exactLength) {
+    const data = this.unknownData as Array<any>;
+    if (data.length !== exactLength) {
       this.problems.push({
         what: What.faultyLength,
         in: 'Array',
         is: data.length.toString(),
-        expected: this.exactLength.toString(),
+        expected: exactLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
@@ -96,53 +117,53 @@ export class ArrayValidationClass extends BaseValidationClass {
     return result;
   }
 
-  ofStrings(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.stringValidator, 'string')
+  ofStrings(): boolean {
+    return this.isExpectedContent(this.unknownData, this.stringValidator, 'string')
   }
 
-  ofNumbers(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.numberValidator, 'number')
+  ofNumbers(): boolean {
+    return this.isExpectedContent(this.unknownData, this.numberValidator, 'number')
   }
 
-  ofObjects(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this.objectValidator, 'object')
+  ofObjects(): boolean {
+    return this.isExpectedContent(this.unknownData, this.objectValidator, 'object')
   }
 
-  ofArrays(unknownData: unknown): boolean {
-    return this.isExpectedContent(unknownData, this, 'Array')
+  ofArrays(): boolean {
+    return this.isExpectedContent(this.unknownData, this, 'Array')
   }
 
-  ofBooleans(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'boolean', 'boolean')
+  ofBooleans(): boolean {
+    return this.isExpectedContentType(this.unknownData, (item: any) => typeof item === 'boolean', 'boolean')
   }
 
-  ofFunctions(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'function', 'function')
+  ofFunctions(): boolean {
+    return this.isExpectedContentType(this.unknownData, (item: any) => typeof item === 'function', 'function')
   }
 
-  ofSymbols(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => typeof item === 'symbol', 'symbol')
+  ofSymbols(): boolean {
+    return this.isExpectedContentType(this.unknownData, (item: any) => typeof item === 'symbol', 'symbol')
   }
 
-  ofDates(unknownData: unknown): boolean {
-    return this.isExpectedContentType(unknownData, (item: any) => item instanceof Date, 'Date')
+  ofDates(): boolean {
+    return this.isExpectedContentType(this.unknownData, (item: any) => item instanceof Date, 'Date')
   }
 
-  thatMustHaveSanctionedValues(unknownData: unknown): boolean {
-    const isArray = this.type(unknownData);
+  thatMustHaveSanctionedValues(sanctionedValues: Array<any> = []): boolean {
+    const isArray = this.type();
     if (!isArray) {
       return false;
     }
-    const dataArray = unknownData as Array<any>;
+    const dataArray = this.unknownData as Array<any>;
     let result = true;
     for (let index = 0; index < dataArray.length; index++) {
       const data = dataArray[index];
-      if (!this.validValues.includes(data)) {
+      if (!sanctionedValues.includes(data)) {
         this.problems.push({
           what: What.unexpectedValues,
           in: 'Array',
           is: data.toString(),
-          expected: this.validValues.join(', '),
+          expected: sanctionedValues.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
         result = false;
@@ -154,21 +175,21 @@ export class ArrayValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatMustHaveSanctionedValueTypes(unknownData: unknown): boolean {
-    const isArray = this.type(unknownData);
+  thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>= []): boolean {
+    const isArray = this.type();
     if (!isArray) {
       return false;
     }
-    const dataArray = unknownData as Array<any>;
+    const dataArray = this.unknownData as Array<any>;
     let result = true;
     for (let index = 0; index < dataArray.length; index++) {
       const data = dataArray[index];
-      if (!this.validValueTypes.includes(typeof data)) {
+      if (!sanctionedTypes.includes(typeof data)) {
         this.problems.push({
           what: What.unexpectedValueTypes,
           in: 'Array',
           is: typeof data,
-          expected: this.validValueTypes.join(', '),
+          expected: sanctionedTypes.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
         result = false;
@@ -181,7 +202,7 @@ export class ArrayValidationClass extends BaseValidationClass {
   }
 
   private isExpectedContent(unknownData: unknown, validatorInstance: StringValidationClass|NumberValidationClass|ObjectValidationClass|ArrayValidationClass, expected: string): boolean {
-    const isArray = this.type(unknownData);
+    const isArray = this.type();
     if (!isArray) {
       return false;
     }
@@ -189,7 +210,7 @@ export class ArrayValidationClass extends BaseValidationClass {
     let result
     const data = unknownData as Array<any>;
     for (let index = 0; index < data.length; index++) {
-      result = validatorInstance.type(data[index]);
+      result = validatorInstance.internalType(data[index]);
       if (!result) {
         this.recordErroneousDataType(typeof data[index], index, expected)
         endResult = false
@@ -204,7 +225,7 @@ export class ArrayValidationClass extends BaseValidationClass {
 
   private isExpectedContentType(unknownData: unknown, typeCheck: (item: any) =>boolean , expected: string): boolean {
     // first check that the unknownData is an array
-    if (!this.type(unknownData)) {
+    if (!this.type()) {
       return false;
     }
 

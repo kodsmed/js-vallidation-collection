@@ -1,11 +1,32 @@
 import { BaseValidationClass, ArgumentObject, What, ErroneousData } from './BaseValidationClass';
 
 export class StringValidationClass extends BaseValidationClass {
-  constructor(argumentObject: ArgumentObject) {
-    super(argumentObject);
+  constructor() {
+    super();
   }
 
-  type(unknownData: unknown): boolean {
+  type(): boolean {
+    const invalid = this.isNullOrUndefined(this.unknownData);
+    if(invalid) {
+      this.handleValidationFailure()
+      return false;
+    }
+    const result = typeof this.unknownData === 'string';
+    if (!result) {
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'string',
+        is: typeof this.unknownData,
+        expected: 'string',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
+      return false;
+    }
+    return true;
+  }
+
+  internalType(unknownData: unknown): boolean {
     const invalid = this.isNullOrUndefined(unknownData);
     if(invalid) {
       this.handleValidationFailure()
@@ -26,19 +47,19 @@ export class StringValidationClass extends BaseValidationClass {
     return true;
   }
 
-  withMinimumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMinimumLength(minimumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataString = unknownData as string;
-    result = dataString.length >= this.minimumLength;
+    const dataString = this.unknownData as string;
+    result = dataString.length >= minimumLength;
     if (!result) {
       this.problems.push({
         what: What.tooShort,
-        in: typeof unknownData,
+        in: typeof this.unknownData,
         is: `length : ${dataString.length}`,
-        expected: `to be at least ${this.minimumLength} characters long`,
+        expected: `to be at least ${minimumLength} characters long`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -48,19 +69,19 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withMaximumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMaximumLength(maximumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataString = unknownData as string;
-    result = dataString.length <= this.maximumLength;
+    const dataString = this.unknownData as string;
+    result = dataString.length <= maximumLength;
     if (!result) {
       this.problems.push({
         what: What.tooLong,
-        in: typeof unknownData,
+        in: typeof this.unknownData,
         is: `length : ${dataString.length}`,
-        expected: `to be at most ${this.maximumLength} characters long`,
+        expected: `to be at most ${maximumLength} characters long`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -70,19 +91,19 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withExactLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withExactLength(exactLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataString = unknownData as string;
-    result = dataString.length === this.exactLength;
+    const dataString = this.unknownData as string;
+    result = dataString.length === exactLength;
     if (!result) {
       this.problems.push({
         what: What.faultyLength,
-        in: typeof unknownData,
+        in: typeof this.unknownData,
         is: `length : ${dataString.length}`,
-        expected: `to be exactly ${this.exactLength} characters long`,
+        expected: `to be exactly ${exactLength} characters long`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
@@ -92,17 +113,17 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIncludes(unknownData: unknown, subString: string): boolean {
-    let result = this.type(unknownData);
+  thatIncludes(subString: string): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    result = (unknownData as string).includes(subString);
+    result = (this.unknownData as string).includes(subString);
     if (!result) {
     this.problems.push({
       what: What.unexpectedValues,
-      in: typeof unknownData as string,
-      is: unknownData as string,
+      in: typeof this.unknownData as string,
+      is: this.unknownData as string,
       expected: `${subString} to be included`,
       ...(this.name && this.name !== '' ? { name: this.name } : {})
     });
@@ -113,18 +134,18 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatDoesNotIncludes(unknownData: unknown, subString: string): boolean {
-    let result = this.type(unknownData);
+  thatDoesNotIncludes(subString: string): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = !(unknownData as string).includes(subString);
-    const unknownString = unknownData as string;
+    result = !(this.unknownData as string).includes(subString);
+    const unknownString = this.unknownData as string;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
+        in: typeof this.unknownData as string,
         is: unknownString,
         at: unknownString.indexOf(subString) ,
         expected: `${subString} to not be included`,
@@ -137,18 +158,18 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsInCapitalLetters(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsInCapitalLetters(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as string).toUpperCase() === unknownData;
+    result = (this.unknownData as string).toUpperCase() === this.unknownData;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to be in capital letters`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -159,18 +180,18 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsInSmallLetters(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatIsInSmallLetters(): boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as string).toLowerCase() === unknownData;
+    result = (this.unknownData as string).toLowerCase() === this.unknownData;
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to be in small letters`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -181,20 +202,20 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  firstLetterIsCapital(unknownData: unknown) : boolean {
-    let result = this.type(unknownData);
+  firstLetterIsCapital() : boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    const unknownString = unknownData as string;
+    const unknownString = this.unknownData as string;
     unknownString.trim();
     const firstLetter = unknownString[0];
     result = (firstLetter.toUpperCase() === firstLetter)
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
+        in: typeof this.unknownData as string,
         is: firstLetter,
         expected: `to be a capital letter`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
@@ -206,18 +227,18 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatEndsWith(unknownData: unknown, subString: string) : boolean {
-    let result = this.type(unknownData);
+  thatEndsWith(subString: string) : boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as string).endsWith(subString);
+    result = (this.unknownData as string).endsWith(subString);
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to end with ${subString}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -228,18 +249,18 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatStartsWith(unknownData: unknown, subString: string) : boolean {
-    let result = this.type(unknownData);
+  thatStartsWith(subString: string) : boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as string).startsWith(subString);
+    result = (this.unknownData as string).startsWith(subString);
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to start with ${subString}`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
@@ -250,51 +271,51 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsAnEmail(unknownData: unknown) : boolean {
-    let result = this.type(unknownData);
+  thatIsAnEmail() : boolean {
+    let result = this.type();
     if (!result) {
       this.handleValidationFailure()
       return false;
     }
-    result = (unknownData as string).includes('@');
+    result = (this.unknownData as string).includes('@');
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to include @`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
-    result && (result = (unknownData as string).includes('.'));
+    result && (result = (this.unknownData as string).includes('.'));
     if (!result) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to include .`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
-    if ((unknownData as string).lastIndexOf('.') > (unknownData as string).length - 3) {
+    if ((this.unknownData as string).lastIndexOf('.') > (this.unknownData as string).length - 3) {
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to have at least 2 characters after the .`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false
     }
-    if (unknownData && (unknownData as string).includes('@') && (unknownData as string).includes('.')) {
-      const email = unknownData as string
+    if (this.unknownData && (this.unknownData as string).includes('@') && (this.unknownData as string).includes('.')) {
+      const email = this.unknownData as string
       const atIndex = email.indexOf('@')
       const dotIndex = email.lastIndexOf('.')
       if (atIndex > dotIndex) {
         this.problems.push({
           what: What.unexpectedValues,
-          in: typeof unknownData as string,
-          is: unknownData as string,
+          in: typeof this.unknownData as string,
+          is: this.unknownData as string,
           expected: `to have a . after the @`,
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
@@ -307,12 +328,12 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsAUrl(unknownData: unknown) : boolean {
-    if (!this.type(unknownData)) {
+  thatIsAUrl() : boolean {
+    if (!this.type()) {
       this.handleValidationFailure()
       return false;
     }
-    const url = unknownData as string
+    const url = this.unknownData as string
     let result = false
     try {
       new URL(url)
@@ -321,8 +342,8 @@ export class StringValidationClass extends BaseValidationClass {
       result = false
       this.problems.push({
         what: What.unexpectedValues,
-        in: typeof unknownData as string,
-        is: unknownData as string,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
         expected: `to be a valid URL`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });

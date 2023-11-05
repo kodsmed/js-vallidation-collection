@@ -3,11 +3,31 @@ import { BaseValidationClass, ArgumentObject, ErroneousData, What } from './Base
 export class ObjectValidationClass extends BaseValidationClass {
   [key: string]: any;
   [key: symbol]: any;
-  constructor(argumentObject: ArgumentObject) {
-    super(argumentObject);
+  constructor() {
+    super();
   }
 
-  type(unknownData: unknown): boolean {
+  type(): boolean {
+    const isInvalid = this.isNullOrUndefined(this.unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    const result = typeof this.unknownData === 'object' && !Array.isArray(this.unknownData);
+    if (!result) {
+      this.problems.push({
+        what: What.unexpectedType,
+        in: 'object',
+        is: typeof this.unknownData,
+        expected: 'object',
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure()
+      return false;
+    }
+    return true;
+  }
+
+  internalType(unknownData: unknown): boolean {
     const isInvalid = this.isNullOrUndefined(unknownData)
     if (isInvalid) {
       return false;
@@ -27,14 +47,14 @@ export class ObjectValidationClass extends BaseValidationClass {
     return true;
   }
 
-  withMinimumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMinimumLength(minimumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as object;
+    const dataObject = this.unknownData as object;
     const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
-    if (dataObjectProperties.length < this.minimumLength) {
+    if (dataObjectProperties.length < minimumLength) {
       this.problems.push({
         what: What.tooShort,
         in: 'object',
@@ -48,19 +68,19 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withMaximumLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withMaximumLength(maximumLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as object;
+    const dataObject = this.unknownData as object;
     const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
-    if (dataObjectProperties.length > this.maximumLength) {
+    if (dataObjectProperties.length > maximumLength) {
       this.problems.push({
         what: What.tooLong,
         in: 'object',
         is: dataObjectProperties.length.toString(),
-        expected: this.maximumLength.toString(),
+        expected: maximumLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
@@ -69,14 +89,14 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result;
   }
 
-  withExactLength(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  withExactLength(exactLength: number): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as object;
+    const dataObject = this.unknownData as object;
     const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
-    if (dataObjectProperties.length !== this.exactLength) {
+    if (dataObjectProperties.length !== exactLength) {
       this.problems.push({
         what: What.faultyLength,
         in: 'object',
@@ -90,18 +110,18 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsInstanceOf (unknownData: unknown, classType: any): boolean {
-    let isObject = this.type(unknownData)
+  thatIsInstanceOf (classType: any): boolean {
+    let isObject = this.type()
     if (!isObject) {
       return false
     }
     let result = true
-    if (!(unknownData instanceof classType)) {
+    if (!(this.unknownData instanceof classType)) {
       result = false
       this.problems.push({
         what: What.unexpectedType,
-        in: typeof unknownData as string,
-        is: typeof unknownData as string,
+        in: typeof this.unknownData as string,
+        is: typeof this.unknownData as string,
         expected: classType.name,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       })
@@ -110,19 +130,19 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result
   }
 
-  thatMayHaveProperties(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatMayHaveProperties(propertyNames: Array<string>): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as object;
+    const dataObject = this.unknownData as object;
     const allProperties: Array<string> = Object.getOwnPropertyNames(dataObject);
 
     for (const property of allProperties) {
-      if (!this.validProperties.includes(property)) {
+      if (!propertyNames.includes(property)) {
         this.problems.push({
           what: What.unexpectedProperties,
-          in: typeof unknownData as string,
+          in: typeof this.unknownData as string,
           is: property,
           expected: this.validProperties.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
@@ -134,22 +154,22 @@ export class ObjectValidationClass extends BaseValidationClass {
    return result
   }
 
-  thatMustHaveProperties (unknownData: unknown): boolean {
-    let result = this.type(unknownData)
+  thatMustHaveProperties (propertyNames: Array<string>): boolean {
+    let result = this.type()
     if (!result) {
       return false
     }
-    const dataObject = unknownData as object
+    const dataObject = this.unknownData as object
     const missingProperties: Array<ErroneousData> = []
 
     const allProperties: Array<string> = Object.getOwnPropertyNames(dataObject)
 
     // All the valid properties must be in the object.
-    for (const property of this.validProperties) {
+    for (const property of propertyNames) {
       if (!dataObject.hasOwnProperty(property)) {
         this.problems.push({
           what: What.missingProperties,
-          in: typeof unknownData as string,
+          in: typeof this.unknownData as string,
           expected: `${property} to be included`,
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         })
@@ -158,10 +178,10 @@ export class ObjectValidationClass extends BaseValidationClass {
     }
     // All the properties of the object must be in the array of valid properties.
     for (const property of allProperties) {
-      if (!this.validProperties.includes(property)) {
+      if (!propertyNames.includes(property)) {
         this.problems.push({
           what: What.unexpectedProperties,
-          in: typeof unknownData as string,
+          in: typeof this.unknownData as string,
           is: property,
           expected: this.validProperties.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
@@ -175,23 +195,23 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result
   }
 
-  thatMustHaveSanctionedValues(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatMustHaveSanctionedValues(sanctionedValues: Array<any>): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as Record<string, any>;
+    const dataObject = this.unknownData as Record<string, any>;
     const allValues: Array<string> = Object.values(dataObject);
 
     for (const value of allValues) {
       // loop through all the properties of the object, check if any of them have a value that is not in the array of sanctioned values. Type can be anything. As long as it's in the array of sanctioned values, it's ok.
-      if (!this.validValues.includes(value)) {
+      if (!sanctionedValues.includes(value)) {
         const valueAsString = this.valueToString(value)
         this.problems.push({
           what: What.unexpectedValues,
-          in: typeof unknownData as string,
+          in: typeof this.unknownData as string,
           is: valueAsString,
-          expected: this.validValues.join(', '),
+          expected: sanctionedValues.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
         result = false;
@@ -203,24 +223,24 @@ export class ObjectValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatMustHaveSanctionedValueTypes(unknownData: unknown): boolean {
-    let result = this.type(unknownData);
+  thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>): boolean {
+    let result = this.type();
     if (!result) {
       return false;
     }
-    const dataObject = unknownData as Record<string, any>;
+    const dataObject = this.unknownData as Record<string, any>;
     const allValues: Array<string> = Object.values(dataObject);
 
     // All the properties of the object must have a value that is of a sanctioned type. The type can be anything, as long as it's in the array of sanctioned types.
     for (const value of allValues) {
       const valueType = typeof value
-      if (this.validValueTypes.indexOf(valueType) === -1) {
+      if (sanctionedTypes.indexOf(valueType) === -1) {
         const valueAsString = this.valueToString(value)
         this.problems.push({
           what: What.unexpectedValueTypes,
-          in: typeof unknownData as string,
+          in: typeof this.unknownData as string,
           is: typeof value,
-          expected: this.validValueTypes.join(', '),
+          expected: sanctionedTypes.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
         result = false;

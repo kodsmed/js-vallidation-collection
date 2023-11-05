@@ -3,364 +3,373 @@
  * Contains a collection of methods that can be used to for validation.
  *
  * @module ValidationCollection
- * @version 1.0.0
+ * @version 2.0.0
  * @author Jimmy "Kodsmed" Karlsson
  *
- * @typedef {Object} ValidationCollection
- * @property {number} minimumLength - Define the minium required length.
- * @property {number} maximumLength - Define the maximum length allowed.
- * @property {number} exactLength - Define the exact length required.
- * @property {number} minimumNumberValue - Define the minimum number value allowed.
- * @property {number} maximumNumberValue - Define the maximum number value allowed.
- * @property {number} exactNumberValue - Define the exact number value required.
- * @property {Array} validProperties - Example ['width', 'height', 'color'].
- * @property {Array} validValues - Examples [1, 2, 3], ['red', 'green', 'blue']. Values can be of any type.
- * @property {Array} validValueTypes - Examples ['number', 'string', 'boolean']. Strings must be lowercase.
  * @property {string} name - Name of the parameter that is being validated.
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import {  ArgumentObject, divisibleByArgument } from './lib/BaseValidationClass';
+import { ErroneousData } from './lib/BaseValidationClass';
 import { ArrayValidationClass } from './lib/ArrayValidationClass';
 import { StringValidationClass } from './lib/StringValidationClass';
 import { NumberValidationClass } from './lib/NumberValidationClass';
 import { ObjectValidationClass } from './lib/ObjectValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 
-export default class ValidationCollection {
-  private stringValidationClass: StringValidationClass
-  private numberValidationClass: NumberValidationClass
-  private objectValidationClass: ObjectValidationClass
-  private arrayValidationClass: ArrayValidationClass
+export default function ValidationCollection () {
+  const stringValidationClass: StringValidationClass = new StringValidationClass()
+  const numberValidationClass: NumberValidationClass = new NumberValidationClass()
+  const objectValidationClass: ObjectValidationClass = new ObjectValidationClass()
+  const arrayValidationClass: ArrayValidationClass = new ArrayValidationClass()
 
-  constructor(argumentObject: ArgumentObject = {}) {
-    this.stringValidationClass = new StringValidationClass(argumentObject)
-    this.numberValidationClass = new NumberValidationClass(argumentObject)
-    this.objectValidationClass = new ObjectValidationClass(argumentObject)
-    this.arrayValidationClass = new ArrayValidationClass(argumentObject)
+  const callableFunction = function (unknownData: unknown): boolean {
+    if (unknownData === undefined || unknownData === null) {
+      return false
+    }
+    stringValidationClass.data = unknownData
+    numberValidationClass.data = unknownData
+    objectValidationClass.data = unknownData
+    arrayValidationClass.data = unknownData
+    return true
   }
 
-  get isString(): CallableStringValidatorObject {
-    const self = this
+  callableFunction.setThrowsErrors = function (shouldThrow: boolean) {
+    stringValidationClass.shouldThrowErrors = shouldThrow
+    numberValidationClass.shouldThrowErrors = shouldThrow
+    objectValidationClass.shouldThrowErrors = shouldThrow
+    arrayValidationClass.shouldThrowErrors = shouldThrow
+  }
+
+  callableFunction.name = function (name: string) {
+    stringValidationClass.dataName = name
+    numberValidationClass.dataName = name
+    objectValidationClass.dataName = name
+    arrayValidationClass.dataName = name
+  }
+
+
+  callableFunction.isString = function (): CallableStringValidatorObject {
     const callableObject : CallableStringValidatorObject = Object.assign(
-      function (unknownData: unknown): boolean {
-        return self.stringValidationClass.type(unknownData)
+      function (): boolean {
+        return stringValidationClass.type()
       },
       {
-        withMinimumLength(unknownData: unknown):boolean {
-          return  self.stringValidationClass.withMinimumLength(unknownData)
+        withMinimumLength(minimumLength: number):boolean {
+          return  stringValidationClass.withMinimumLength(minimumLength)
         }
       },
       {
-        withMaximumLength(unknownData: unknown):boolean {
-          return  self.stringValidationClass.withMaximumLength(unknownData)
+        withMaximumLength(maximumLength: number):boolean {
+          return  stringValidationClass.withMaximumLength(maximumLength)
         }
       },
       {
-        withExactLength(unknownData: unknown):boolean {
-          return  self.stringValidationClass.withExactLength(unknownData)
+        withExactLength(exactLength: number):boolean {
+          return  stringValidationClass.withExactLength(exactLength)
         }
       },
       {
-        thatIncludes(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.thatIncludes(unknownData, subString)
+        thatIncludes(subString: string) : boolean {
+          return stringValidationClass.thatIncludes(subString)
         }
       },
       {
-        thatDoesNotIncludes(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.thatDoesNotIncludes(unknownData, subString)
+        thatDoesNotIncludes(subString: string) : boolean {
+          return stringValidationClass.thatDoesNotIncludes(subString)
         }
       },
       {
-        thatIsInCapitalLetters(unknownData: unknown) : boolean {
-          return self.stringValidationClass.thatIsInCapitalLetters(unknownData)
+        thatIsInCapitalLetters() : boolean {
+          return stringValidationClass.thatIsInCapitalLetters()
         }
       },
       {
-        thatIsInSmallLetters(unknownData: unknown) : boolean {
-          return self.stringValidationClass.thatIsInSmallLetters(unknownData)
+        thatIsInSmallLetters() : boolean {
+          return stringValidationClass.thatIsInSmallLetters()
         }
       },
       {
-        firstLetterIsCapital(unknownData: unknown) : boolean {
-          return self.stringValidationClass.firstLetterIsCapital(unknownData)
+        firstLetterIsCapital() : boolean {
+          return stringValidationClass.firstLetterIsCapital()
         }
       },
       {
-        thatEndsWith(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.thatEndsWith(unknownData, subString)
+        thatEndsWith(subString: string) : boolean {
+          return stringValidationClass.thatEndsWith(subString)
         }
       },
       {
-        thatStartsWith(unknownData: unknown, subString: string) : boolean {
-          return self.stringValidationClass.thatStartsWith(unknownData, subString)
+        thatStartsWith(subString: string) : boolean {
+          return stringValidationClass.thatStartsWith(subString)
         }
       },
       {
-        thatIsAnEmail(unknownData: unknown) : boolean {
-          return self.stringValidationClass.thatIsAnEmail(unknownData)
+        thatIsAnEmail() : boolean {
+          return stringValidationClass.thatIsAnEmail()
         }
       },
       {
-        thatIsAUrl(unknownData: unknown) : boolean {
-          return self.stringValidationClass.thatIsAUrl(unknownData)
+        thatIsAUrl() : boolean {
+          return stringValidationClass.thatIsAUrl()
         }
       }
     )
     return callableObject
   }
 
-  get isNumber(): CallableNumberValidatorObject {
-    const self = this
+  callableFunction.isNumber = function(): CallableNumberValidatorObject {
     const callableObject : CallableNumberValidatorObject = Object.assign(
-      function (unknownData: unknown): boolean {
-        return self.numberValidationClass.type(unknownData)
+      function (): boolean {
+        const result = numberValidationClass.type()
+        return result
       },
       {
-        thatIsPositive(unknownData: unknown):boolean {
-          return self.numberValidationClass.thatIsPositive(unknownData)
+        thatIsPositive(): CallableNumberValidatorObject | boolean {
+          const result = numberValidationClass.thatIsPositive()
+          return result ? callableObject : false
         }
       },
       {
-        thatIsNegative(unknownData: unknown):boolean {
-          return self.numberValidationClass.thatIsNegative(unknownData)
+        thatIsNegative(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsNegative()
         }
       },
       {
-        thatIsBetweenMinMax(unknownData: unknown):boolean {
-          return self.numberValidationClass.thatIsBetweenMinMax(unknownData)
+        thatIsBetweenMinMax(min: number, max: number): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsBetweenMinMax(min, max)
         }
       },
       {
-        thatIsOverMinimum(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsOverMinimum(unknownData)
+        thatIsOverMinimum(minimumValue: number): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsOverMinimum(minimumValue)
         }
       },
       {
-        thatIsUnderMaximum(unknownData: unknown): boolean {
-         return self.numberValidationClass.thatIsUnderMaximum(unknownData)
+        thatIsUnderMaximum(maximumValue: number): CallableNumberValidatorObject | boolean {
+         return numberValidationClass.thatIsUnderMaximum(maximumValue)
         }
       },
       {
-        thatIsExactly(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsExactly(unknownData)
+        thatIsExactly(exactValue: number): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsExactly(exactValue)
         }
       },
       {
-        thatIsEven(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsEven(unknownData)
+        thatIsEven(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsEven()
         }
       },
       {
-        thatIsOdd(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsOdd(unknownData)
+        thatIsOdd(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsOdd()
         }
       },
       {
-        thatIsNotZero(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsNotZero(unknownData)
+        thatIsNotZero(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsNotZero()
         }
       },
       {
-        thatIsNotOne(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsNotOne(unknownData)
+        thatIsNotOne(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsNotOne()
         }
       },
       {
-        thatIsNotNegativeOne(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsNotNegativeOne(unknownData)
+        thatIsNotNegativeOne(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsNotNegativeOne()
         }
       },
       {
-        thatIsEvenlyDivisible(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsEvenlyDivisible(unknownData)
+        thatIsEvenlyDivisible(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsEvenlyDivisible()
         }
       },
       {
-        thatIsEvenlyDivisibleBy(argument: divisibleByArgument): boolean {
-          return self.numberValidationClass.thatIsEvenlyDivisibleBy(argument)
+        thatIsEvenlyDivisibleBy(number: number): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsEvenlyDivisibleBy(number)
         }
       },
       {
-        thatIsAPrimeNumber(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsAPrimeNumber(unknownData)
+        thatIsAPrimeNumber(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsAPrimeNumber()
         }
       },
       {
-        thatIsNotAPrimeNumber(unknownData: unknown): boolean {
-          return self.numberValidationClass.thatIsNotAPrimeNumber(unknownData)
+        thatIsNotAPrimeNumber(): CallableNumberValidatorObject | boolean {
+          return numberValidationClass.thatIsNotAPrimeNumber()
         }
       }
     )
     return callableObject
   }
 
-  get isObject(): CallableObjectValidatorObject {
-    const self = this
+  callableFunction.isObject = function (): CallableObjectValidatorObject {
     const callableObject : CallableObjectValidatorObject = Object.assign(
-      function (unknownData: unknown): boolean {
-        return self.objectValidationClass.type(unknownData)
+      function (): boolean {
+        return objectValidationClass.type()
       },
       {
-        withMinimumLength(unknownData: unknown):boolean {
-          return self.objectValidationClass.withMinimumLength(unknownData)
+        withMinimumLength(minimumLength: number): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.withMinimumLength(minimumLength)
         }
       },
       {
-        withMaximumLength(unknownData: unknown):boolean {
-          return self.objectValidationClass.withMaximumLength(unknownData)
+        withMaximumLength(maximumLength: number): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.withMaximumLength(maximumLength)
         }
       },
       {
-        withExactLength(unknownData: unknown):boolean {
-          return self.objectValidationClass.withExactLength(unknownData)
+        withExactLength(exactLength: number): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.withExactLength(exactLength)
         }
       },
       {
-        thatMayHaveProperties(unknownData: unknown):boolean {
-          return self.objectValidationClass.thatMayHaveProperties(unknownData)
+        thatMayHaveProperties(propertyNames: Array<string>): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.thatMayHaveProperties(propertyNames)
         }
       },
       {
-        thatMustHaveProperties(unknownData: unknown):boolean {
-          return self.objectValidationClass.thatMustHaveProperties(unknownData)
+        thatMustHaveProperties(propertyNames: Array<string>): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.thatMustHaveProperties(propertyNames)
         }
       },
       {
-        thatMustHaveSanctionedValues(unknownData: unknown):boolean {
-          return self.objectValidationClass.thatMustHaveSanctionedValues(unknownData)
+        thatMustHaveSanctionedValues(sanctionedValues: Array<any>): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.thatMustHaveSanctionedValues(sanctionedValues)
         }
       },
       {
-        thatMustHaveSanctionedValueTypes(unknownData: unknown):boolean {
-          return self.objectValidationClass.thatMustHaveSanctionedValueTypes(unknownData)
+        thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes)
         }
       },
       {
-        thatIsInstanceOf (unknownData: unknown, classType: any): boolean {
-          return self.objectValidationClass.thatIsInstanceOf(unknownData, classType)
+        thatIsInstanceOf (classType: any): CallableObjectValidatorObject | boolean {
+          return objectValidationClass.thatIsInstanceOf(classType)
         }
       }
     )
     return callableObject
   }
 
-  get isArray(): CallableArrayValidatorObject {
-    const self = this
+  callableFunction.isArray = function(): CallableArrayValidatorObject {
     const callableObject : CallableArrayValidatorObject = Object.assign(
-      function (unknownData: unknown): boolean {
-        return self.arrayValidationClass.type(unknownData)
+      function (): boolean {
+        return arrayValidationClass.type()
       },
       {
-        withMinimumLength(unknownData: unknown):boolean {
-          return self.arrayValidationClass.withMinimumLength(unknownData)
+        withMinimumLength(minimumLength: number): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.withMinimumLength(minimumLength)
         }
       },
       {
-        withMaximumLength(unknownData: unknown):boolean {
-          return self.arrayValidationClass.withMaximumLength(unknownData)
+        withMaximumLength(maximumLength: number): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.withMaximumLength(maximumLength)
         }
       },
       {
-        withExactLength(unknownData: unknown):boolean {
-          return self.arrayValidationClass.withExactLength(unknownData)
+        withExactLength(exactLength: number): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.withExactLength(exactLength)
         }
       },
       {
-        ofStrings(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofStrings(unknownData)
+        ofStrings(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofStrings()
         }
       },
       {
-        ofNumbers(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofNumbers(unknownData)
+        ofNumbers(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofNumbers()
         }
       },
       {
-        ofObjects(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofObjects(unknownData)
+        ofObjects(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofObjects()
         }
       },
       {
-        ofArrays(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofArrays(unknownData)
+        ofArrays(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofArrays()
         }
       },
       {
-        ofBooleans(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofBooleans(unknownData)
+        ofBooleans(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofBooleans()
         }
       },
       {
-        ofFunctions(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofFunctions(unknownData)
+        ofFunctions(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofFunctions()
         }
       },
       {
-        ofSymbols(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofSymbols(unknownData)
+        ofSymbols(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofSymbols()
         }
       },
       {
-        ofDates(unknownData: unknown):boolean {
-          return self.arrayValidationClass.ofDates(unknownData)
+        ofDates(): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.ofDates()
         }
       },
       {
-        thatMustHaveSanctionedValues(unknownData: unknown):boolean {
-          return self.arrayValidationClass.thatMustHaveSanctionedValues(unknownData)
+        thatMustHaveSanctionedValues(sanctionedValues: Array<any>): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.thatMustHaveSanctionedValues(sanctionedValues)
         }
       },
       {
-        thatMustHaveSanctionedValueTypes(unknownData: unknown):boolean {
-          return self.arrayValidationClass.thatMustHaveSanctionedValueTypes(unknownData)
+        thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>): CallableArrayValidatorObject | boolean {
+          return arrayValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes)
         }
       }
     )
     return callableObject
   }
 
-  get report() {
-    const arrayProblems = this.arrayValidationClass.report
-    const objectProblems = this.objectValidationClass.report
-    const stringProblems = this.stringValidationClass.report
-    const numberProblems = this.numberValidationClass.report
+  callableFunction.report = function (): Array<ErroneousData> {
+    const arrayProblems = arrayValidationClass.report
+    const objectProblems = objectValidationClass.report
+    const stringProblems = stringValidationClass.report
+    const numberProblems = numberValidationClass.report
     const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems)
     return problems
   }
 
-  get reportAsString() {
-    const arrayProblems = this.arrayValidationClass.reportAsString
-    const objectProblems = this.objectValidationClass.reportAsString
-    const stringProblems = this.stringValidationClass.reportAsString
-    const numberProblems = this.numberValidationClass.reportAsString
+  callableFunction.reportAsString = function (): string {
+    const arrayProblems = arrayValidationClass.reportAsString
+    const objectProblems = objectValidationClass.reportAsString
+    const stringProblems = stringValidationClass.reportAsString
+    const numberProblems = numberValidationClass.reportAsString
     const problems = arrayProblems + objectProblems + stringProblems + numberProblems
     return problems
   }
 
-  clearProblems() {
-    this.arrayValidationClass.clearProblems()
-    this.objectValidationClass.clearProblems()
-    this.stringValidationClass.clearProblems()
-    this.numberValidationClass.clearProblems()
+  callableFunction.clearProblems = function():void {
+    arrayValidationClass.clearProblems()
+    objectValidationClass.clearProblems()
+    stringValidationClass.clearProblems()
+    numberValidationClass.clearProblems()
   }
 
-  get hasProblems(): boolean {
-    const problems = this.arrayValidationClass.hasProblems
-    || this.objectValidationClass.hasProblems
-    || this.stringValidationClass.hasProblems
-    || this.numberValidationClass.hasProblems
+  callableFunction.hasProblems = function(): boolean {
+    const problems = arrayValidationClass.hasProblems
+    || objectValidationClass.hasProblems
+    || stringValidationClass.hasProblems
+    || numberValidationClass.hasProblems
     return problems
   }
 
-  get shouldThrowErrors(): boolean {
-    return this.arrayValidationClass.shouldThrowErrors
-      || this.objectValidationClass.shouldThrowErrors
-      || this.stringValidationClass.shouldThrowErrors
-      || this.numberValidationClass.shouldThrowErrors
+  callableFunction.throwsErrors = function(): boolean {
+    return arrayValidationClass.shouldThrowErrors
+      || objectValidationClass.shouldThrowErrors
+      || stringValidationClass.shouldThrowErrors
+      || numberValidationClass.shouldThrowErrors
   }
 
-  get rules() : ArgumentObject {
-    return this.stringValidationClass.rules
+  callableFunction._handleValidationFailure = function(): void {
+    if (callableFunction.throwsErrors()) {
+      throw new Error(callableFunction.reportAsString())
+    }
   }
 }
