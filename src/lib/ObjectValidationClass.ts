@@ -144,7 +144,7 @@ export class ObjectValidationClass extends BaseValidationClass {
           what: What.unexpectedProperties,
           in: typeof this.unknownData as string,
           is: property,
-          expected: this.validProperties.join(', '),
+          expected: propertyNames.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         });
         result = false;
@@ -160,7 +160,6 @@ export class ObjectValidationClass extends BaseValidationClass {
       return false
     }
     const dataObject = this.unknownData as object
-    const missingProperties: Array<ErroneousData> = []
 
     const allProperties: Array<string> = Object.getOwnPropertyNames(dataObject)
 
@@ -183,7 +182,7 @@ export class ObjectValidationClass extends BaseValidationClass {
           what: What.unexpectedProperties,
           in: typeof this.unknownData as string,
           is: property,
-          expected: this.validProperties.join(', '),
+          expected: propertyNames.join(', '),
           ...(this.name && this.name !== '' ? { name: this.name } : {})
         })
         result = false

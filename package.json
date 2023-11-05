@@ -6,7 +6,8 @@
   "type": "module",
   "exports": {
     ".": "./dist/validate.js",
-    "./ts": "./src/validate.ts"
+    "./ts": "./src/validate.ts",
+    "./types": "./dist/validate.d.ts"
   },
   "types": "./dist/validate.d.ts",
   "scripts": {

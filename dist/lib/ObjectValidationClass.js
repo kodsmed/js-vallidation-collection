@@ -93,7 +93,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         const allProperties = Object.getOwnPropertyNames(dataObject);
         for (const property of allProperties) {
             if (!propertyNames.includes(property)) {
-                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: this.validProperties.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: propertyNames.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
                 result = false;
                 this.handleValidationFailure();
             }
@@ -106,7 +106,6 @@ export class ObjectValidationClass extends BaseValidationClass {
             return false;
         }
         const dataObject = this.unknownData;
-        const missingProperties = [];
         const allProperties = Object.getOwnPropertyNames(dataObject);
         // All the valid properties must be in the object.
         for (const property of propertyNames) {
@@ -118,7 +117,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         // All the properties of the object must be in the array of valid properties.
         for (const property of allProperties) {
             if (!propertyNames.includes(property)) {
-                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: this.validProperties.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: propertyNames.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
                 result = false;
             }
         }
