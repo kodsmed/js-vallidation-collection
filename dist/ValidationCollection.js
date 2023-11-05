@@ -13,291 +13,348 @@ import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
 import { StringValidationClass } from './lib/StringValidationClass.js';
 import { NumberValidationClass } from './lib/NumberValidationClass.js';
 import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
-export default function ValidationCollection() {
-    const stringValidationClass = new StringValidationClass();
-    const numberValidationClass = new NumberValidationClass();
-    const objectValidationClass = new ObjectValidationClass();
-    const arrayValidationClass = new ArrayValidationClass();
-    const callableFunction = function (unknownData) {
-        if (unknownData === undefined || unknownData === null) {
-            return false;
-        }
-        stringValidationClass.data = unknownData;
-        numberValidationClass.data = unknownData;
-        objectValidationClass.data = unknownData;
-        arrayValidationClass.data = unknownData;
-        return true;
-    };
-    callableFunction.setThrowsErrors = function (shouldThrow) {
-        stringValidationClass.shouldThrowErrors = shouldThrow;
-        numberValidationClass.shouldThrowErrors = shouldThrow;
-        objectValidationClass.shouldThrowErrors = shouldThrow;
-        arrayValidationClass.shouldThrowErrors = shouldThrow;
-    };
-    callableFunction.setName = function (name) {
-        stringValidationClass.dataName = name;
-        numberValidationClass.dataName = name;
-        objectValidationClass.dataName = name;
-        arrayValidationClass.dataName = name;
-    };
-    callableFunction.isString = function () {
+export default class ValidationCollection {
+    constructor(unknownData) {
+        this.stringValidationClass = new StringValidationClass();
+        this.numberValidationClass = new NumberValidationClass();
+        this.objectValidationClass = new ObjectValidationClass();
+        this.arrayValidationClass = new ArrayValidationClass();
+        this.stringValidationClass.data = unknownData;
+        this.numberValidationClass.data = unknownData;
+        this.objectValidationClass.data = unknownData;
+        this.arrayValidationClass.data = unknownData;
+    }
+    set throwsErrors(shouldThrow) {
+        this.stringValidationClass.shouldThrowErrors = shouldThrow;
+        this.numberValidationClass.shouldThrowErrors = shouldThrow;
+        this.objectValidationClass.shouldThrowErrors = shouldThrow;
+        this.arrayValidationClass.shouldThrowErrors = shouldThrow;
+    }
+    setName(name) {
+        this.stringValidationClass.dataName = name;
+        this.numberValidationClass.dataName = name;
+        this.objectValidationClass.dataName = name;
+        this.arrayValidationClass.dataName = name;
+    }
+    get isString() {
+        const self = this;
         const callableObject = Object.assign(function () {
-            return stringValidationClass.type();
+            self.stringValidationClass.type();
+            return callableObject;
         }, {
             withMinimumLength(minimumLength) {
-                return stringValidationClass.withMinimumLength(minimumLength);
+                self.stringValidationClass.withMinimumLength(minimumLength);
+                return callableObject;
             }
         }, {
             withMaximumLength(maximumLength) {
-                return stringValidationClass.withMaximumLength(maximumLength);
+                self.stringValidationClass.withMaximumLength(maximumLength);
+                return callableObject;
             }
         }, {
             withExactLength(exactLength) {
-                return stringValidationClass.withExactLength(exactLength);
+                self.stringValidationClass.withExactLength(exactLength);
+                return callableObject;
             }
         }, {
             thatIncludes(subString) {
-                return stringValidationClass.thatIncludes(subString);
+                self.stringValidationClass.thatIncludes(subString);
+                return callableObject;
             }
         }, {
             thatDoesNotIncludes(subString) {
-                return stringValidationClass.thatDoesNotIncludes(subString);
+                self.stringValidationClass.thatDoesNotIncludes(subString);
+                return callableObject;
             }
         }, {
             thatIsInCapitalLetters() {
-                return stringValidationClass.thatIsInCapitalLetters();
+                self.stringValidationClass.thatIsInCapitalLetters();
+                return callableObject;
             }
         }, {
             thatIsInSmallLetters() {
-                return stringValidationClass.thatIsInSmallLetters();
+                self.stringValidationClass.thatIsInSmallLetters();
+                return callableObject;
             }
         }, {
             firstLetterIsCapital() {
-                return stringValidationClass.firstLetterIsCapital();
+                self.stringValidationClass.firstLetterIsCapital();
+                return callableObject;
             }
         }, {
             thatEndsWith(subString) {
-                return stringValidationClass.thatEndsWith(subString);
+                self.stringValidationClass.thatEndsWith(subString);
+                return callableObject;
             }
         }, {
             thatStartsWith(subString) {
-                return stringValidationClass.thatStartsWith(subString);
+                self.stringValidationClass.thatStartsWith(subString);
+                return callableObject;
             }
         }, {
             thatIsAnEmail() {
-                return stringValidationClass.thatIsAnEmail();
+                self.stringValidationClass.thatIsAnEmail();
+                return callableObject;
             }
         }, {
             thatIsAUrl() {
-                return stringValidationClass.thatIsAUrl();
+                self.stringValidationClass.thatIsAUrl();
+                return callableObject;
             }
         });
         return callableObject;
-    };
-    callableFunction.isNumber = function () {
+    }
+    get isNumber() {
+        const self = this;
         const callableObject = Object.assign(function () {
-            const result = numberValidationClass.type();
-            return result;
+            self.numberValidationClass.type();
+            return callableObject;
         }, {
             thatIsPositive() {
-                const result = numberValidationClass.thatIsPositive();
-                return result ? callableObject : false;
+                self.numberValidationClass.thatIsPositive();
+                return callableObject;
             }
         }, {
             thatIsNegative() {
-                return numberValidationClass.thatIsNegative();
+                self.numberValidationClass.thatIsNegative();
+                return callableObject;
             }
         }, {
             thatIsBetweenMinMax(min, max) {
-                return numberValidationClass.thatIsBetweenMinMax(min, max);
+                self.numberValidationClass.thatIsBetweenMinMax(min, max);
+                return callableObject;
             }
         }, {
             thatIsOverMinimum(minimumValue) {
-                return numberValidationClass.thatIsOverMinimum(minimumValue);
+                self.numberValidationClass.thatIsOverMinimum(minimumValue);
+                return callableObject;
             }
         }, {
             thatIsUnderMaximum(maximumValue) {
-                return numberValidationClass.thatIsUnderMaximum(maximumValue);
+                self.numberValidationClass.thatIsUnderMaximum(maximumValue);
+                return callableObject;
             }
         }, {
             thatIsExactly(exactValue) {
-                return numberValidationClass.thatIsExactly(exactValue);
+                self.numberValidationClass.thatIsExactly(exactValue);
+                return callableObject;
             }
         }, {
             thatIsEven() {
-                return numberValidationClass.thatIsEven();
+                self.numberValidationClass.thatIsEven();
+                return callableObject;
             }
         }, {
             thatIsOdd() {
-                return numberValidationClass.thatIsOdd();
+                self.numberValidationClass.thatIsOdd();
+                return callableObject;
             }
         }, {
             thatIsNotZero() {
-                return numberValidationClass.thatIsNotZero();
+                self.numberValidationClass.thatIsNotZero();
+                return callableObject;
             }
         }, {
             thatIsNotOne() {
-                return numberValidationClass.thatIsNotOne();
+                self.numberValidationClass.thatIsNotOne();
+                return callableObject;
             }
         }, {
             thatIsNotNegativeOne() {
-                return numberValidationClass.thatIsNotNegativeOne();
+                self.numberValidationClass.thatIsNotNegativeOne();
+                return callableObject;
             }
         }, {
             thatIsEvenlyDivisible() {
-                return numberValidationClass.thatIsEvenlyDivisible();
+                self.numberValidationClass.thatIsEvenlyDivisible();
+                return callableObject;
             }
         }, {
             thatIsEvenlyDivisibleBy(number) {
-                return numberValidationClass.thatIsEvenlyDivisibleBy(number);
+                self.numberValidationClass.thatIsEvenlyDivisibleBy(number);
+                return callableObject;
             }
         }, {
             thatIsAPrimeNumber() {
-                return numberValidationClass.thatIsAPrimeNumber();
+                self.numberValidationClass.thatIsAPrimeNumber();
+                return callableObject;
             }
         }, {
             thatIsNotAPrimeNumber() {
-                return numberValidationClass.thatIsNotAPrimeNumber();
+                self.numberValidationClass.thatIsNotAPrimeNumber();
+                return callableObject;
             }
         });
         return callableObject;
-    };
-    callableFunction.isObject = function () {
+    }
+    get isObject() {
+        const self = this;
         const callableObject = Object.assign(function () {
-            return objectValidationClass.type();
+            self.objectValidationClass.type();
+            return callableObject;
         }, {
             withMinimumLength(minimumLength) {
-                return objectValidationClass.withMinimumLength(minimumLength);
+                self.objectValidationClass.withMinimumLength(minimumLength);
+                return callableObject;
             }
         }, {
             withMaximumLength(maximumLength) {
-                return objectValidationClass.withMaximumLength(maximumLength);
+                self.objectValidationClass.withMaximumLength(maximumLength);
+                return callableObject;
             }
         }, {
             withExactLength(exactLength) {
-                return objectValidationClass.withExactLength(exactLength);
+                self.objectValidationClass.withExactLength(exactLength);
+                return callableObject;
             }
         }, {
             thatMayHaveProperties(propertyNames) {
-                return objectValidationClass.thatMayHaveProperties(propertyNames);
+                self.objectValidationClass.thatMayHaveProperties(propertyNames);
+                return callableObject;
             }
         }, {
             thatMustHaveProperties(propertyNames) {
-                return objectValidationClass.thatMustHaveProperties(propertyNames);
+                self.objectValidationClass.thatMustHaveProperties(propertyNames);
+                return callableObject;
             }
         }, {
             thatMustHaveSanctionedValues(sanctionedValues) {
-                return objectValidationClass.thatMustHaveSanctionedValues(sanctionedValues);
+                self.objectValidationClass.thatMustHaveSanctionedValues(sanctionedValues);
+                return callableObject;
             }
         }, {
             thatMustHaveSanctionedValueTypes(sanctionedTypes) {
-                return objectValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes);
+                self.objectValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes);
+                return callableObject;
             }
         }, {
             thatIsInstanceOf(classType) {
-                return objectValidationClass.thatIsInstanceOf(classType);
+                self.objectValidationClass.thatIsInstanceOf(classType);
+                return callableObject;
             }
         });
         return callableObject;
-    };
-    callableFunction.isArray = function () {
+    }
+    get isArray() {
+        const self = this;
         const callableObject = Object.assign(function () {
-            return arrayValidationClass.type();
+            self.arrayValidationClass.type();
+            return callableObject;
         }, {
             withMinimumLength(minimumLength) {
-                return arrayValidationClass.withMinimumLength(minimumLength);
+                self.arrayValidationClass.withMinimumLength(minimumLength);
+                return callableObject;
             }
         }, {
             withMaximumLength(maximumLength) {
-                return arrayValidationClass.withMaximumLength(maximumLength);
+                self.arrayValidationClass.withMaximumLength(maximumLength);
+                return callableObject;
             }
         }, {
             withExactLength(exactLength) {
-                return arrayValidationClass.withExactLength(exactLength);
+                self.arrayValidationClass.withExactLength(exactLength);
+                return callableObject;
             }
         }, {
             ofStrings() {
-                return arrayValidationClass.ofStrings();
+                self.arrayValidationClass.ofStrings();
+                return callableObject;
             }
         }, {
             ofNumbers() {
-                return arrayValidationClass.ofNumbers();
+                self.arrayValidationClass.ofNumbers();
+                return callableObject;
             }
         }, {
             ofObjects() {
-                return arrayValidationClass.ofObjects();
+                self.arrayValidationClass.ofObjects();
+                return callableObject;
             }
         }, {
             ofArrays() {
-                return arrayValidationClass.ofArrays();
+                self.arrayValidationClass.ofArrays();
+                return callableObject;
             }
         }, {
             ofBooleans() {
-                return arrayValidationClass.ofBooleans();
+                self.arrayValidationClass.ofBooleans();
+                return callableObject;
             }
         }, {
             ofFunctions() {
-                return arrayValidationClass.ofFunctions();
+                self.arrayValidationClass.ofFunctions();
+                return callableObject;
             }
         }, {
             ofSymbols() {
-                return arrayValidationClass.ofSymbols();
+                self.arrayValidationClass.ofSymbols();
+                return callableObject;
             }
         }, {
             ofDates() {
-                return arrayValidationClass.ofDates();
+                self.arrayValidationClass.ofDates();
+                return callableObject;
             }
         }, {
             thatMustHaveSanctionedValues(sanctionedValues) {
-                return arrayValidationClass.thatMustHaveSanctionedValues(sanctionedValues);
+                self.arrayValidationClass.thatMustHaveSanctionedValues(sanctionedValues);
+                return callableObject;
             }
         }, {
             thatMustHaveSanctionedValueTypes(sanctionedTypes) {
-                return arrayValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes);
+                self.arrayValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes);
+                return callableObject;
             }
         });
         return callableObject;
-    };
-    callableFunction.report = function () {
-        const arrayProblems = arrayValidationClass.report;
-        const objectProblems = objectValidationClass.report;
-        const stringProblems = stringValidationClass.report;
-        const numberProblems = numberValidationClass.report;
+    }
+    get report() {
+        const arrayProblems = this.arrayValidationClass.report;
+        const objectProblems = this.objectValidationClass.report;
+        const stringProblems = this.stringValidationClass.report;
+        const numberProblems = this.numberValidationClass.report;
         const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems);
         return problems;
-    };
-    callableFunction.reportAsString = function () {
-        const arrayProblems = arrayValidationClass.reportAsString;
-        const objectProblems = objectValidationClass.reportAsString;
-        const stringProblems = stringValidationClass.reportAsString;
-        const numberProblems = numberValidationClass.reportAsString;
+    }
+    get reportAsString() {
+        const arrayProblems = this.arrayValidationClass.reportAsString;
+        const objectProblems = this.objectValidationClass.reportAsString;
+        const stringProblems = this.stringValidationClass.reportAsString;
+        const numberProblems = this.numberValidationClass.reportAsString;
         const problems = arrayProblems + objectProblems + stringProblems + numberProblems;
         return problems;
-    };
-    callableFunction.clearProblems = function () {
-        arrayValidationClass.clearProblems();
-        objectValidationClass.clearProblems();
-        stringValidationClass.clearProblems();
-        numberValidationClass.clearProblems();
-    };
-    callableFunction.hasProblems = function () {
-        const problems = arrayValidationClass.hasProblems
-            || objectValidationClass.hasProblems
-            || stringValidationClass.hasProblems
-            || numberValidationClass.hasProblems;
+    }
+    clearProblems() {
+        this.arrayValidationClass.clearProblems();
+        this.objectValidationClass.clearProblems();
+        this.stringValidationClass.clearProblems();
+        this.numberValidationClass.clearProblems();
+    }
+    get hasProblems() {
+        const problems = this.arrayValidationClass.hasProblems
+            || this.objectValidationClass.hasProblems
+            || this.stringValidationClass.hasProblems
+            || this.numberValidationClass.hasProblems;
         return problems;
-    };
-    callableFunction.throwsErrors = function () {
-        return arrayValidationClass.shouldThrowErrors
-            || objectValidationClass.shouldThrowErrors
-            || stringValidationClass.shouldThrowErrors
-            || numberValidationClass.shouldThrowErrors;
-    };
-    callableFunction._handleValidationFailure = function () {
-        if (callableFunction.throwsErrors()) {
-            throw new Error(callableFunction.reportAsString());
+    }
+    get throwsErrors() {
+        return this.arrayValidationClass.shouldThrowErrors
+            || this.objectValidationClass.shouldThrowErrors
+            || this.stringValidationClass.shouldThrowErrors
+            || this.numberValidationClass.shouldThrowErrors;
+    }
+    confirm() {
+        const problemsEncountered = this.arrayValidationClass.hasProblems
+            || this.objectValidationClass.hasProblems
+            || this.stringValidationClass.hasProblems
+            || this.numberValidationClass.hasProblems;
+        if (problemsEncountered) {
+            if (this.throwsErrors) {
+                throw new Error(this.reportAsString);
+            }
+            return false;
         }
-    };
-    return callableFunction;
+        return true;
+    }
 }
 //# sourceMappingURL=ValidationCollection.js.map

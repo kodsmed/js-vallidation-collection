@@ -1,17 +1,3 @@
-export type ArgumentObject = {
-  minimumLength?: number;
-  maximumLength?: number;
-  exactLength?: number;
-  minimumNumberValue?: number;
-  maximumNumberValue?: number;
-  exactNumberValue?: number;
-  validProperties?: Array<string>;
-  validValues?: Array<any>;
-  validValueTypes?: Array<string>;
-  name?: string;
-  shouldThrow?: boolean;
-};
-
 export type ErroneousData = {name?: string, what: string, in: string, at?: number, is?: string, expected?: string}
 export enum What {
   unexpectedType = 'unexpected type',

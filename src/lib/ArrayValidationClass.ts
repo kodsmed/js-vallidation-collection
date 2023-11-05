@@ -1,4 +1,4 @@
-import { BaseValidationClass, ArgumentObject, ErroneousData, What } from "./BaseValidationClass.js";
+import { BaseValidationClass, ErroneousData, What } from "./BaseValidationClass.js";
 import { StringValidationClass } from "./StringValidationClass.js";
 import { NumberValidationClass } from "./NumberValidationClass.js";
 import { ObjectValidationClass } from "./ObjectValidationClass.js";
