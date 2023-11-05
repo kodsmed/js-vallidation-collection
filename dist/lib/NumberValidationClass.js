@@ -113,12 +113,7 @@ export class NumberValidationClass extends BaseValidationClass {
         }
         const result = this.unknownData <= maximumValue;
         if (!result) {
-            this.problems.push({
-                what: What.unexpectedValues,
-                in: typeof this.unknownData,
-                is: `${this.unknownData}`,
-                expected: `< ${maximumValue}`
-            });
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: `${this.unknownData}`, expected: `< ${maximumValue}` }, (this.name && this.name !== '' ? { name: this.name } : {})));
         }
         if (!result) {
             this.handleValidationFailure();

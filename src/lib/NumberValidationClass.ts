@@ -174,7 +174,8 @@ export class NumberValidationClass extends BaseValidationClass {
         what: What.unexpectedValues,
         in: typeof this.unknownData as string,
         is: `${this.unknownData}`,
-        expected: `< ${maximumValue}`
+        expected: `< ${maximumValue}`,
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
     }
     if (!result) {
