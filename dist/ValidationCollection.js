@@ -13,35 +13,31 @@ import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
 import { StringValidationClass } from './lib/StringValidationClass.js';
 import { NumberValidationClass } from './lib/NumberValidationClass.js';
 import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
-const validate = function (unknownData = undefined) {
-    return new ValidationCollection(unknownData);
-};
-export default validate;
 export class ValidationCollection {
     constructor(unknownData = undefined) {
-        this.stringValidationClass = new StringValidationClass();
-        this.numberValidationClass = new NumberValidationClass();
-        this.objectValidationClass = new ObjectValidationClass();
-        this.arrayValidationClass = new ArrayValidationClass();
-        this.stringValidationClass.data = unknownData;
-        this.numberValidationClass.data = unknownData;
-        this.objectValidationClass.data = unknownData;
-        this.arrayValidationClass.data = unknownData;
+        ValidationCollection.stringValidationClass.data = unknownData;
+        ValidationCollection.numberValidationClass.data = unknownData;
+        ValidationCollection.objectValidationClass.data = unknownData;
+        ValidationCollection.arrayValidationClass.data = unknownData;
     }
-    set throwsErrors(shouldThrow) {
-        this.stringValidationClass.shouldThrowErrors = shouldThrow;
-        this.numberValidationClass.shouldThrowErrors = shouldThrow;
-        this.objectValidationClass.shouldThrowErrors = shouldThrow;
-        this.arrayValidationClass.shouldThrowErrors = shouldThrow;
+    static createInstance(unknownData = undefined) {
+        return new ValidationCollection(unknownData);
     }
-    setName(name) {
-        this.stringValidationClass.dataName = name;
-        this.numberValidationClass.dataName = name;
-        this.objectValidationClass.dataName = name;
-        this.arrayValidationClass.dataName = name;
+    static setThrowsErrors(shouldThrow) {
+        ValidationCollection.throwErrors = shouldThrow;
+        ValidationCollection.stringValidationClass.shouldThrowErrors = shouldThrow;
+        ValidationCollection.numberValidationClass.shouldThrowErrors = shouldThrow;
+        ValidationCollection.objectValidationClass.shouldThrowErrors = shouldThrow;
+        ValidationCollection.arrayValidationClass.shouldThrowErrors = shouldThrow;
+    }
+    static setName(name) {
+        ValidationCollection.stringValidationClass.dataName = name;
+        ValidationCollection.numberValidationClass.dataName = name;
+        ValidationCollection.objectValidationClass.dataName = name;
+        ValidationCollection.arrayValidationClass.dataName = name;
     }
     isString() {
-        const self = this;
+        const self = ValidationCollection;
         const callableObject = Object.assign(function () {
             self.stringValidationClass.type();
             return callableObject;
@@ -123,7 +119,7 @@ export class ValidationCollection {
         return callableObject;
     }
     isNumber() {
-        const self = this;
+        const self = ValidationCollection;
         const callableObject = Object.assign(function () {
             self.numberValidationClass.type();
             return callableObject;
@@ -220,7 +216,7 @@ export class ValidationCollection {
         return callableObject;
     }
     isObject() {
-        const self = this;
+        const self = ValidationCollection;
         const callableObject = Object.assign(function () {
             self.objectValidationClass.type();
             return callableObject;
@@ -282,7 +278,7 @@ export class ValidationCollection {
         return callableObject;
     }
     isArray() {
-        const self = this;
+        const self = ValidationCollection;
         const callableObject = Object.assign(function () {
             self.arrayValidationClass.type();
             return callableObject;
@@ -368,7 +364,7 @@ export class ValidationCollection {
         });
         return callableObject;
     }
-    report() {
+    static report() {
         const arrayProblems = this.arrayValidationClass.report;
         const objectProblems = this.objectValidationClass.report;
         const stringProblems = this.stringValidationClass.report;
@@ -376,7 +372,7 @@ export class ValidationCollection {
         const problems = arrayProblems.concat(objectProblems, stringProblems, numberProblems);
         return problems;
     }
-    reportAsString() {
+    static reportAsString() {
         const arrayProblems = this.arrayValidationClass.reportAsString;
         const objectProblems = this.objectValidationClass.reportAsString;
         const stringProblems = this.stringValidationClass.reportAsString;
@@ -384,24 +380,26 @@ export class ValidationCollection {
         const problems = arrayProblems + objectProblems + stringProblems + numberProblems;
         return problems;
     }
-    clearProblems() {
+    static clearProblems() {
         this.arrayValidationClass.clearProblems();
         this.objectValidationClass.clearProblems();
         this.stringValidationClass.clearProblems();
         this.numberValidationClass.clearProblems();
     }
     hasProblems() {
-        const problems = this.arrayValidationClass.hasProblems
-            || this.objectValidationClass.hasProblems
-            || this.stringValidationClass.hasProblems
-            || this.numberValidationClass.hasProblems;
+        const problems = ValidationCollection.arrayValidationClass.hasProblems
+            || ValidationCollection.objectValidationClass.hasProblems
+            || ValidationCollection.stringValidationClass.hasProblems
+            || ValidationCollection.numberValidationClass.hasProblems;
         return problems;
     }
-    get throwsErrors() {
-        return this.arrayValidationClass.shouldThrowErrors
-            || this.objectValidationClass.shouldThrowErrors
-            || this.stringValidationClass.shouldThrowErrors
-            || this.numberValidationClass.shouldThrowErrors;
+    static get throwsErrors() {
+        return ValidationCollection.throwErrors;
     }
 }
+ValidationCollection.throwErrors = false;
+ValidationCollection.stringValidationClass = new StringValidationClass();
+ValidationCollection.numberValidationClass = new NumberValidationClass();
+ValidationCollection.objectValidationClass = new ObjectValidationClass();
+ValidationCollection.arrayValidationClass = new ArrayValidationClass();
 //# sourceMappingURL=ValidationCollection.js.map

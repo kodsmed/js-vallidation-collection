@@ -17,43 +17,42 @@ import { NumberValidationClass } from './lib/NumberValidationClass.js';
 import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject, Callable } from './interface/CallableObject.js';
 
-
-const validate = function (unknownData: unknown = undefined): ValidationCollection {
-  return new ValidationCollection(unknownData)
-}
-
-export default validate
-
 export class ValidationCollection {
-  private stringValidationClass: StringValidationClass = new StringValidationClass()
-  private numberValidationClass: NumberValidationClass = new NumberValidationClass()
-  private objectValidationClass: ObjectValidationClass = new ObjectValidationClass()
-  private arrayValidationClass: ArrayValidationClass = new ArrayValidationClass()
+  private static throwErrors: boolean = false
+  private static stringValidationClass: StringValidationClass = new StringValidationClass()
+  private static numberValidationClass: NumberValidationClass = new NumberValidationClass()
+  private static objectValidationClass: ObjectValidationClass = new ObjectValidationClass()
+  private static arrayValidationClass: ArrayValidationClass = new ArrayValidationClass()
 
   constructor(unknownData: unknown = undefined) {
-    this.stringValidationClass.data = unknownData
-    this.numberValidationClass.data = unknownData
-    this.objectValidationClass.data = unknownData
-    this.arrayValidationClass.data = unknownData
+    ValidationCollection.stringValidationClass.data = unknownData
+    ValidationCollection.numberValidationClass.data = unknownData
+    ValidationCollection.objectValidationClass.data = unknownData
+    ValidationCollection.arrayValidationClass.data = unknownData
   }
 
-  set throwsErrors(shouldThrow: boolean) {
-    this.stringValidationClass.shouldThrowErrors = shouldThrow
-    this.numberValidationClass.shouldThrowErrors = shouldThrow
-    this.objectValidationClass.shouldThrowErrors = shouldThrow
-    this.arrayValidationClass.shouldThrowErrors = shouldThrow
+  static createInstance(unknownData: unknown = undefined): ValidationCollection {
+    return new ValidationCollection(unknownData)
   }
 
-  setName(name: string) {
-    this.stringValidationClass.dataName = name
-    this.numberValidationClass.dataName = name
-    this.objectValidationClass.dataName = name
-    this.arrayValidationClass.dataName = name
+  static setThrowsErrors(shouldThrow: boolean) {
+    ValidationCollection.throwErrors = shouldThrow
+    ValidationCollection.stringValidationClass.shouldThrowErrors = shouldThrow
+    ValidationCollection.numberValidationClass.shouldThrowErrors = shouldThrow
+    ValidationCollection.objectValidationClass.shouldThrowErrors = shouldThrow
+    ValidationCollection.arrayValidationClass.shouldThrowErrors = shouldThrow
+  }
+
+  static setName(name: string) {
+    ValidationCollection.stringValidationClass.dataName = name
+    ValidationCollection.numberValidationClass.dataName = name
+    ValidationCollection.objectValidationClass.dataName = name
+    ValidationCollection.arrayValidationClass.dataName = name
   }
 
 
   isString(): CallableStringValidatorObject {
-    const self = this
+    const self = ValidationCollection
     const callableObject: CallableStringValidatorObject = Object.assign(
       function (): CallableStringValidatorObject {
         self.stringValidationClass.type()
@@ -152,7 +151,7 @@ export class ValidationCollection {
   }
 
   isNumber(): CallableNumberValidatorObject {
-    const self = this
+    const self = ValidationCollection
     const callableObject: CallableNumberValidatorObject = Object.assign(
       function (): CallableNumberValidatorObject {
         self.numberValidationClass.type()
@@ -269,7 +268,7 @@ export class ValidationCollection {
   }
 
   isObject(): CallableObjectValidatorObject {
-    const self = this
+    const self = ValidationCollection
     const callableObject: CallableObjectValidatorObject = Object.assign(
       function (): CallableObjectValidatorObject {
         self.objectValidationClass.type()
@@ -344,7 +343,7 @@ export class ValidationCollection {
   }
 
   isArray(): CallableArrayValidatorObject {
-    const self = this
+    const self = ValidationCollection
     const callableObject: CallableArrayValidatorObject = Object.assign(
       function (): CallableArrayValidatorObject {
         self.arrayValidationClass.type()
@@ -448,7 +447,7 @@ export class ValidationCollection {
     return callableObject
   }
 
-  report(): Array<ErroneousData> {
+  static report(): Array<ErroneousData> {
     const arrayProblems = this.arrayValidationClass.report
     const objectProblems = this.objectValidationClass.report
     const stringProblems = this.stringValidationClass.report
@@ -457,7 +456,7 @@ export class ValidationCollection {
     return problems
   }
 
-  reportAsString(): string {
+  static reportAsString(): string {
     const arrayProblems = this.arrayValidationClass.reportAsString
     const objectProblems = this.objectValidationClass.reportAsString
     const stringProblems = this.stringValidationClass.reportAsString
@@ -466,7 +465,7 @@ export class ValidationCollection {
     return problems
   }
 
-  clearProblems(): void {
+  static clearProblems(): void {
     this.arrayValidationClass.clearProblems()
     this.objectValidationClass.clearProblems()
     this.stringValidationClass.clearProblems()
@@ -474,18 +473,15 @@ export class ValidationCollection {
   }
 
   hasProblems(): boolean {
-    const problems = this.arrayValidationClass.hasProblems
-      || this.objectValidationClass.hasProblems
-      || this.stringValidationClass.hasProblems
-      || this.numberValidationClass.hasProblems
+    const problems = ValidationCollection.arrayValidationClass.hasProblems
+      || ValidationCollection.objectValidationClass.hasProblems
+      || ValidationCollection.stringValidationClass.hasProblems
+      || ValidationCollection.numberValidationClass.hasProblems
     return problems
   }
 
-  get throwsErrors(): boolean {
-    return this.arrayValidationClass.shouldThrowErrors
-      || this.objectValidationClass.shouldThrowErrors
-      || this.stringValidationClass.shouldThrowErrors
-      || this.numberValidationClass.shouldThrowErrors
+  static get throwsErrors(): boolean {
+    return ValidationCollection.throwErrors
   }
 }
 
