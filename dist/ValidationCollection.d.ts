@@ -30,5 +30,4 @@ export declare class ValidationCollection {
     clearProblems(): void;
     hasProblems(): boolean;
     get throwsErrors(): boolean;
-    confirm(): boolean;
 }

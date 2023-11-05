@@ -130,6 +130,22 @@ export class ValidationCollection {
           self.stringValidationClass.thatIsAUrl()
           return callableObject
         }
+      },
+      {
+        confirm(): boolean {
+          const problemsEncountered =
+            self.arrayValidationClass.hasProblems
+            || self.objectValidationClass.hasProblems
+            || self.stringValidationClass.hasProblems
+            || self.numberValidationClass.hasProblems
+          if (problemsEncountered) {
+            if (self.throwsErrors) {
+              throw new Error(self.reportAsString())
+            }
+            return false
+          }
+          return true
+        }
       }
     )
     return callableObject
@@ -231,6 +247,22 @@ export class ValidationCollection {
           self.numberValidationClass.thatIsNotAPrimeNumber()
           return callableObject
         }
+      },
+      {
+        confirm(): boolean {
+          const problemsEncountered =
+            self.arrayValidationClass.hasProblems
+            || self.objectValidationClass.hasProblems
+            || self.stringValidationClass.hasProblems
+            || self.numberValidationClass.hasProblems
+          if (problemsEncountered) {
+            if (self.throwsErrors) {
+              throw new Error(self.reportAsString())
+            }
+            return false
+          }
+          return true
+        }
       }
     )
     return callableObject
@@ -289,6 +321,22 @@ export class ValidationCollection {
         thatIsInstanceOf(classType: any): CallableObjectValidatorObject {
           self.objectValidationClass.thatIsInstanceOf(classType)
           return callableObject
+        }
+      },
+      {
+        confirm(): boolean {
+          const problemsEncountered =
+            self.arrayValidationClass.hasProblems
+            || self.objectValidationClass.hasProblems
+            || self.stringValidationClass.hasProblems
+            || self.numberValidationClass.hasProblems
+          if (problemsEncountered) {
+            if (self.throwsErrors) {
+              throw new Error(self.reportAsString())
+            }
+            return false
+          }
+          return true
         }
       }
     )
@@ -379,6 +427,22 @@ export class ValidationCollection {
           self.arrayValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes)
           return callableObject
         }
+      },
+      {
+        confirm(): boolean {
+          const problemsEncountered =
+            self.arrayValidationClass.hasProblems
+            || self.objectValidationClass.hasProblems
+            || self.stringValidationClass.hasProblems
+            || self.numberValidationClass.hasProblems
+          if (problemsEncountered) {
+            if (self.throwsErrors) {
+              throw new Error(self.reportAsString())
+            }
+            return false
+          }
+          return true
+        }
       }
     )
     return callableObject
@@ -422,22 +486,6 @@ export class ValidationCollection {
       || this.objectValidationClass.shouldThrowErrors
       || this.stringValidationClass.shouldThrowErrors
       || this.numberValidationClass.shouldThrowErrors
-  }
-
-  confirm(): boolean {
-    const problemsEncountered =
-      this.arrayValidationClass.hasProblems
-      || this.objectValidationClass.hasProblems
-      || this.stringValidationClass.hasProblems
-      || this.numberValidationClass.hasProblems
-
-    if (problemsEncountered) {
-      if (this.throwsErrors) {
-        throw new Error(this.reportAsString())
-      }
-      return false
-    }
-    return true
   }
 }
 
