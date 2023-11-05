@@ -34,7 +34,7 @@ export default function ValidationCollection() {
         objectValidationClass.shouldThrowErrors = shouldThrow;
         arrayValidationClass.shouldThrowErrors = shouldThrow;
     };
-    callableFunction.name = function (name) {
+    callableFunction.setName = function (name) {
         stringValidationClass.dataName = name;
         numberValidationClass.dataName = name;
         objectValidationClass.dataName = name;
