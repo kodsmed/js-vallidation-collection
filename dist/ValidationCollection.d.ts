@@ -22,6 +22,7 @@ export declare class ValidationCollection {
     static createInstance(unknownData?: unknown): ValidationCollection;
     static setThrowsErrors(shouldThrow: boolean): void;
     static setName(name: string): void;
+    static confirm(): boolean;
     isString(): CallableStringValidatorObject;
     isNumber(): CallableNumberValidatorObject;
     isObject(): CallableObjectValidatorObject;

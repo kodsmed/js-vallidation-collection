@@ -85,7 +85,10 @@ export class BaseValidationClass {
   }
 
   get hasProblems (): boolean {
-    return this.problems.length > 0 ? true : false
+    if (this.problems.length > 0) {
+      return true
+    }
+    return false
   }
 
   get shouldThrowErrors (): boolean {

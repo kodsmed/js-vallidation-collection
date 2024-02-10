@@ -1,4 +1,4 @@
-import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass.js';
+import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass';
 
 export class ObjectValidationClass extends BaseValidationClass {
   [key: string]: any;
@@ -59,7 +59,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         what: What.tooShort,
         in: 'object',
         is: dataObjectProperties.length.toString(),
-        expected: this.minimumLength.toString(),
+        expected: minimumLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
@@ -101,33 +101,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         what: What.faultyLength,
         in: 'object',
         is: dataObjectProperties.length.toString(),
-        expected: this.exactLength.toString(),
+        expected: exactLength.toString(),
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
       result = false;
       this.handleValidationFailure()
     }
     return result;
-  }
-
-  thatIsInstanceOf (classType: any): boolean {
-    let isObject = this.type()
-    if (!isObject) {
-      return false
-    }
-    let result = true
-    if (!(this.unknownData instanceof classType)) {
-      result = false
-      this.problems.push({
-        what: What.unexpectedType,
-        in: typeof this.unknownData as string,
-        is: typeof this.unknownData as string,
-        expected: classType.name,
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      })
-      this.handleValidationFailure()
-    }
-    return result
   }
 
   thatMayHaveProperties(propertyNames: Array<string>): boolean {

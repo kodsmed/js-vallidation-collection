@@ -1,4 +1,4 @@
-import { BaseValidationClass, What, ErroneousData } from './BaseValidationClass.js';
+import { BaseValidationClass, What, ErroneousData } from './BaseValidationClass';
 
 export class StringValidationClass extends BaseValidationClass {
   constructor() {
@@ -6,24 +6,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   type(): boolean {
-    const invalid = this.isNullOrUndefined(this.unknownData);
-    if(invalid) {
-      this.handleValidationFailure()
-      return false;
-    }
-    const result = typeof this.unknownData === 'string';
-    if (!result) {
-      this.problems.push({
-        what: What.unexpectedType,
-        in: 'string',
-        is: typeof this.unknownData,
-        expected: 'string',
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      });
-      this.handleValidationFailure()
-      return false;
-    }
-    return true;
+    return this.internalType(this.unknownData);
   }
 
   internalType(unknownData: unknown): boolean {
@@ -271,62 +254,56 @@ export class StringValidationClass extends BaseValidationClass {
     return result;
   }
 
-  thatIsAnEmail() : boolean {
-    let result = this.type();
+  thatIsAnEmail(): boolean {
+    const email = this.unknownData as string;
+    let result = typeof email === 'string' && email.includes('@') && email.includes('.');
+
     if (!result) {
-      this.handleValidationFailure()
+      // Handle failure due to missing @ or .
+      this.problems.push({
+        what: What.unexpectedValues,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
+        expected: `an email address, this string does not contain @ or .`,
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure();
       return false;
     }
-    result = (this.unknownData as string).includes('@');
-    if (!result) {
+
+    const atIndex = email.indexOf('@');
+    const dotIndex = email.lastIndexOf('.');
+
+    // Check if there are at least 2 characters before @
+    if (atIndex < 2) {
       this.problems.push({
         what: What.unexpectedValues,
         in: typeof this.unknownData as string,
         is: this.unknownData as string,
-        expected: `to include @`,
+        expected: `an email address, there are less than 2 characters before @`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
+      this.handleValidationFailure();
+      return false;
     }
-    result && (result = (this.unknownData as string).includes('.'));
-    if (!result) {
+
+    // Check if . comes after @ and not immediately
+    if (dotIndex <= atIndex + 1 || dotIndex >= email.length - 2) {
       this.problems.push({
         what: What.unexpectedValues,
         in: typeof this.unknownData as string,
         is: this.unknownData as string,
-        expected: `to include .`,
+        expected: `an email address, . comes before @ or is immediately after @`,
         ...(this.name && this.name !== '' ? { name: this.name } : {})
       });
+      this.handleValidationFailure();
+      return false;
     }
-    if ((this.unknownData as string).lastIndexOf('.') > (this.unknownData as string).length - 3) {
-      this.problems.push({
-        what: What.unexpectedValues,
-        in: typeof this.unknownData as string,
-        is: this.unknownData as string,
-        expected: `to have at least 2 characters after the .`,
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      });
-      result = false
-    }
-    if (this.unknownData && (this.unknownData as string).includes('@') && (this.unknownData as string).includes('.')) {
-      const email = this.unknownData as string
-      const atIndex = email.indexOf('@')
-      const dotIndex = email.lastIndexOf('.')
-      if (atIndex > dotIndex) {
-        this.problems.push({
-          what: What.unexpectedValues,
-          in: typeof this.unknownData as string,
-          is: this.unknownData as string,
-          expected: `to have a . after the @`,
-          ...(this.name && this.name !== '' ? { name: this.name } : {})
-        });
-        result = false
-      }
-    }
-    if (!result) {
-      this.handleValidationFailure()
-    }
-    return result;
-  }
+
+    // Additional checks can be added here
+
+    return true;
+}
 
   thatIsAUrl() : boolean {
     if (!this.type()) {

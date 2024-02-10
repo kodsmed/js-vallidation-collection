@@ -18,22 +18,26 @@ With the proper combination of method and arguments, you can validate almost any
 The class will return true if the validation is successful, and false if it is not.  
 You can also set the shouldThrow property to true in the constructor, and the class will throw an error if the validation fails.
 
+## New in version 2.0.0
+
+- The syntax had a major overhaul in version 2.0.0, it is now much more intuitive, and supports chainable methods.  
+- It now exports an object with the validation methods as properties, instead of a class, so you can use the methods without having to instantiate the class.  
+- The package exports in JS and TS, and is fully typed.  
+
 ### Example, general usage
 
 ```` javascript
+import validate from 'validation-collection'; // validate can be any name you want
 
-```` javascript
-import validationCollection from 'validation-collection';
-const validator = new validationCollection({}); // note that the constructor takes an object as an argument
-let result = validator.isString('hello world');
-console.log(result); // true
-let result = validator.isString(123);
-console.log(result); // false
-const validator = new validationCollection({ minimumLength: 3 }); // note that the constructor takes an object as an argument
-let result = validator.isString.withMinimumLength('hello world');
-console.log(result); // true
-let result = validator.isString.withMinimumLength('hi');
-console.log(result); // false
+const myPoint = {x: 2, y: 1, z:'a'}
+
+validate(myPoint)
+    .isObject()
+    .thatMayHaveProperties(["x", "y", "z"])
+    .thatMustHaveSanctionedValueTypes(["number"])
+    .withMinimumLength(2)
+
+
 ````
 
 ### Example, validating a point Object. (x, y, z)

@@ -1,5 +1,5 @@
-import { ValidationCollection } from './ValidationCollection.js';
-import { ErroneousData } from './lib/BaseValidationClass.js';
+import { ValidationCollection } from './ValidationCollection';
+import { ErroneousData } from './lib/BaseValidationClass';
 
 const validate = (unknownData?: unknown): ValidationCollection => {
   return ValidationCollection.createInstance(unknownData);
@@ -20,5 +20,13 @@ validate.report = function (): Array<ErroneousData> {
 validate.reportAsString = function (): string {
   return ValidationCollection.reportAsString();
 };
+
+validate.clearReports = function (): void {
+  ValidationCollection.clearProblems();
+}
+
+validate.confirm = function (): boolean {
+  return ValidationCollection.confirm();
+}
 
 export default validate;

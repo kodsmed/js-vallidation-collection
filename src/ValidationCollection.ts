@@ -10,11 +10,11 @@
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import { ErroneousData } from './lib/BaseValidationClass.js';
-import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
-import { StringValidationClass } from './lib/StringValidationClass.js';
-import { NumberValidationClass } from './lib/NumberValidationClass.js';
-import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
+import { ErroneousData } from './lib/BaseValidationClass';
+import { ArrayValidationClass } from './lib/ArrayValidationClass';
+import { StringValidationClass } from './lib/StringValidationClass';
+import { NumberValidationClass } from './lib/NumberValidationClass';
+import { ObjectValidationClass } from './lib/ObjectValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject, Callable } from './interface/CallableObject.js';
 
 export class ValidationCollection {
@@ -54,11 +54,29 @@ export class ValidationCollection {
     ValidationCollection.arrayValidationClass.validatorName = name
   }
 
+  static confirm(): boolean {
+    const problemsEncountered =
+      ValidationCollection.arrayValidationClass.hasProblems
+      || ValidationCollection.objectValidationClass.hasProblems
+      || ValidationCollection.stringValidationClass.hasProblems
+      || ValidationCollection.numberValidationClass.hasProblems
+    if (problemsEncountered) {
+      if (ValidationCollection.throwsErrors) {
+        throw new Error(ValidationCollection.reportAsString())
+      }
+      return false
+    } else {
+      return true
+    }
+  }
+
 
   isString(): CallableStringValidatorObject {
     const self = ValidationCollection
+    self.stringValidationClass.type()
     const callableObject: CallableStringValidatorObject = Object.assign(
       function (): CallableStringValidatorObject {
+        console.log('self.stringValidationClass', self.stringValidationClass)
         self.stringValidationClass.type()
         return callableObject
       },
@@ -136,18 +154,7 @@ export class ValidationCollection {
       },
       {
         confirm(): boolean {
-          const problemsEncountered =
-            self.arrayValidationClass.hasProblems
-            || self.objectValidationClass.hasProblems
-            || self.stringValidationClass.hasProblems
-            || self.numberValidationClass.hasProblems
-          if (problemsEncountered) {
-            if (self.throwsErrors) {
-              throw new Error(self.reportAsString())
-            }
-            return false
-          }
-          return true
+          return !self.stringValidationClass.hasProblems
         }
       }
     )
@@ -156,8 +163,10 @@ export class ValidationCollection {
 
   isNumber(): CallableNumberValidatorObject {
     const self = ValidationCollection
+    self.numberValidationClass.type()
     const callableObject: CallableNumberValidatorObject = Object.assign(
       function (): CallableNumberValidatorObject {
+        console.log('self.numberValidationClass', self.numberValidationClass)
         self.numberValidationClass.type()
         return callableObject
       },
@@ -222,12 +231,6 @@ export class ValidationCollection {
         }
       },
       {
-        thatIsNotNegativeOne(): CallableNumberValidatorObject {
-          self.numberValidationClass.thatIsNotNegativeOne()
-          return callableObject
-        }
-      },
-      {
         thatIsEvenlyDivisible(): CallableNumberValidatorObject {
           self.numberValidationClass.thatIsEvenlyDivisible()
           return callableObject
@@ -253,18 +256,7 @@ export class ValidationCollection {
       },
       {
         confirm(): boolean {
-          const problemsEncountered =
-            self.arrayValidationClass.hasProblems
-            || self.objectValidationClass.hasProblems
-            || self.stringValidationClass.hasProblems
-            || self.numberValidationClass.hasProblems
-          if (problemsEncountered) {
-            if (self.throwsErrors) {
-              throw new Error(self.reportAsString())
-            }
-            return false
-          }
-          return true
+          return !self.numberValidationClass.hasProblems
         }
       }
     )
@@ -273,6 +265,7 @@ export class ValidationCollection {
 
   isObject(): CallableObjectValidatorObject {
     const self = ValidationCollection
+    self.objectValidationClass.type()
     const callableObject: CallableObjectValidatorObject = Object.assign(
       function (): CallableObjectValidatorObject {
         self.objectValidationClass.type()
@@ -328,18 +321,7 @@ export class ValidationCollection {
       },
       {
         confirm(): boolean {
-          const problemsEncountered =
-            self.arrayValidationClass.hasProblems
-            || self.objectValidationClass.hasProblems
-            || self.stringValidationClass.hasProblems
-            || self.numberValidationClass.hasProblems
-          if (problemsEncountered) {
-            if (self.throwsErrors) {
-              throw new Error(self.reportAsString())
-            }
-            return false
-          }
-          return true
+          return !self.objectValidationClass.hasProblems
         }
       }
     )
@@ -348,6 +330,7 @@ export class ValidationCollection {
 
   isArray(): CallableArrayValidatorObject {
     const self = ValidationCollection
+    self.arrayValidationClass.type()
     const callableObject: CallableArrayValidatorObject = Object.assign(
       function (): CallableArrayValidatorObject {
         self.arrayValidationClass.type()
@@ -433,18 +416,7 @@ export class ValidationCollection {
       },
       {
         confirm(): boolean {
-          const problemsEncountered =
-            self.arrayValidationClass.hasProblems
-            || self.objectValidationClass.hasProblems
-            || self.stringValidationClass.hasProblems
-            || self.numberValidationClass.hasProblems
-          if (problemsEncountered) {
-            if (self.throwsErrors) {
-              throw new Error(self.reportAsString())
-            }
-            return false
-          }
-          return true
+          return !self.arrayValidationClass.hasProblems
         }
       }
     )

@@ -1,28 +1,72 @@
-import ValidationCollection  from '../src/ValidationCollection'
-import { ArgumentObject } from '../src/lib/BaseValidationClass'
+import validate from "../src/validate";
+
 
 type TestCase = { input: unknown, expected: boolean }
 
-function runValidationTests (method: string, testCases: Array<{ input: unknown, expected: boolean }>, argument: ArgumentObject)  {
-  describe(`${method} validator`, () => {
+function reportStringValidator (reportString: string) {
+  // an empty report string is considered valid
+  if (reportString === '') {
+    return true;
+  }
+
+  const validStrings = ['unexpected type',
+  'missing property',
+  'unexpected property',
+  'missing value',
+  'unexpected value',
+  'unexpected value type',
+  'faulty Length',
+  'too short',
+  'too long',
+  'null encountered',
+  'undefined encountered',
+  'NaN encountered']
+
+  // the report string should include one of the valid strings to be considered valid
+  return validStrings.some(validString => reportString.includes(validString));
+}
+
+function runValidationTests (description: string, validatorFunction: (input: any) => any, testCases: TestCase[])  {
+  describe(description, () => {
     testCases.forEach(testCase => {
       it(`should return ${testCase.expected} for ${testCase.input}`, () => {
-        const validationCollection = new ValidationCollection(argument);
-        expect((validationCollection.isString as any)[method](testCase.input)).toBe(testCase.expected);
+        expect(validatorFunction(testCase.input).confirm()).toBe(testCase.expected);
+        const reportString = validate.reportAsString();
+        expect(reportStringValidator(reportString)).toBe(true);
       });
 
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.input} if shouldThrow is set`, () => {
-        const argumentObject = { ...argument, shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => (validator.isString as any)[method](testCase.input)).not.toThrowError();
+          expect(() => validatorFunction(testCase.input)).not.toThrowError();
         } else {
-          expect(() => (validator.isString as any)[method](testCase.input)).toThrowError();
+          expect(() => validatorFunction(testCase.input)).toThrowError();
         }
       });
     });
-  })
+
+    validate.setThrowable(false);
+    validate.clearReports();
+    testCases.forEach(testCase => {
+      validate.setName('testName');
+      it(`should return ${testCase.expected} for ${testCase.input}`, () => {
+      validatorFunction(testCase.input);
+      const reportString = validate.reportAsString();
+      let correctlyNamed = false;
+      if (reportString.startsWith('testName:') || reportString === '') {
+         correctlyNamed = true;
+      }
+      expect(correctlyNamed).toBe(true);
+      });
+    });
+  });
 }
+
+afterEach(() => {
+  validate.clearReports();
+  validate.setThrowable(false);
+});
+
 describe('isString() validator', () => {
   const strings = ['hello', 'world', 'hello world', '123', , '', ' ', '!@#$%^&*()_+'];
   const notStrings = [123, 123.123, true, false, {}, [], null, undefined, NaN, Infinity, -Infinity, new Date(), new RegExp(''), new Error(''), new Function(''), () => { }];
@@ -38,17 +82,15 @@ describe('isString() validator', () => {
   describe(`isString validator`, () => {
     testCases.forEach(testCase => {
       it(`should return ${testCase.expected} for ${testCase.input}`, () => {
-        const validationCollection = new ValidationCollection({});
-        expect(validationCollection.isString(testCase.input)).toBe(testCase.expected);
+        expect(validate(testCase.input).isString().confirm()).toBe(testCase.expected);
       });
 
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.input} if shouldThrow is set`, () => {
-        const argumentObject = { shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => validator.isString(testCase.input)).not.toThrowError();
+          expect(() => validate(testCase.input).isString()).not.toThrowError();
         } else {
-          expect(() => validator.isString(testCase.input)).toThrowError();
+          expect(() => validate(testCase.input).isString()).toThrowError();
         }
       });
     });
@@ -65,8 +107,8 @@ describe('isString() validator', () => {
       { input: 'hel', expected: false },
       { input: 'he', expected: false }
     ]
-
-    runValidationTests('withMinimumLength', testCases, {  minimumLength: 5 })
+    const validationFunction = (input: any) => validate(input).isString().withMinimumLength(5);
+    runValidationTests('withMinimumLength()', validationFunction, testCases);
 
   }),
   describe('isString.withMaximumLength() validator', () => {
@@ -79,7 +121,8 @@ describe('isString() validator', () => {
       { input: 'hel', expected: true },
       { input: 'he', expected: true }
     ]
-    runValidationTests('withMaximumLength', testCases, { maximumLength: 5 })
+    const validationFunction = (input: any) => validate(input).isString().withMaximumLength(5);
+    runValidationTests('withMaximumLength',  validationFunction, testCases);
   })
   describe('isString.withExactLength() validator', () => {
     const testCases = [
@@ -91,7 +134,8 @@ describe('isString() validator', () => {
       { input: 'hel', expected: true },
       { input: 'he', expected: false }
     ]
-    runValidationTests('withExactLength', testCases, { exactLength: 3 })
+    const validationFunction = (input: any) => validate(input).isString().withExactLength(3);
+    runValidationTests('withExactLength', validationFunction, testCases);
 
   }),
 
@@ -126,15 +170,15 @@ describe('isString() validator', () => {
 
     testCases.forEach((testCase) => {
       it(`should return ${testCase.expected} for ${testCase.string} that includes ${testCase.subString}`, () => {
-        const validator = new ValidationCollection({name: 'test'});
-        expect(validator.isString.thatIncludes(testCase.string, testCase.subString)).toBe(testCase.expected);
+        expect(validate(testCase.string).isString().thatIncludes(testCase.subString).confirm()).toBe(testCase.expected);
       })
+
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that includes ${testCase.subString} if shouldThrow is set`, () => {
-        const validator = new ValidationCollection({ shouldThrow: true });
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => validator.isString.thatIncludes(testCase.string, testCase.subString)).not.toThrow(Error);
+          expect(() => validate(testCase.string).isString().thatIncludes(testCase.subString)).not.toThrow(Error);
         } else {
-          expect(() => validator.isString.thatIncludes(testCase.string, testCase.subString)).toThrow(Error);
+          expect(() => validate(testCase.string).isString().thatIncludes(testCase.subString)).toThrow(Error);
         }
       })
     })
@@ -171,134 +215,95 @@ describe('isString() validator', () => {
 
     testCases.forEach((testCase) => {
       it(`should return ${testCase.expected} for ${testCase.string} that does not include ${testCase.subString}`, () => {
-        const validator = new ValidationCollection({name: 'test'});
-        expect(validator.isString.thatDoesNotIncludes(testCase.string, testCase.subString)).toBe(testCase.expected);
+        expect(validate(testCase.string).isString().thatDoesNotIncludes(testCase.subString).confirm()).toBe(testCase.expected);
       })
+
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that does not include ${testCase.subString} if shouldThrow is set`, () => {
-        const validator = new ValidationCollection({ shouldThrow: true });
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => validator.isString.thatDoesNotIncludes(testCase.string, testCase.subString)).not.toThrow(Error);
+          expect(() => validate(testCase.string).isString().thatDoesNotIncludes(testCase.subString)).not.toThrow(Error);
         } else {
-          expect(() => validator.isString.thatDoesNotIncludes(testCase.string, testCase.subString)).toThrow(Error);
+          expect(() => validate(testCase.string).isString().thatDoesNotIncludes(testCase.subString)).toThrow(Error);
         }
       })
     }),
 
       describe('isString.thatIsInCapitalLetters() validator', () => {
         const testCases = [
-          { string: 1, expected: false },
-          { string: undefined, expected: false },
-          { string: null, expected: false },
-          { string: 'HELLO', expected: true },
-          { string: 'hello', expected: false },
-          { string: 'Hello', expected: false },
-          { string: 'hELLO', expected: false },
-          { string: '123', expected: true },
-          { string: '123.123', expected: true },
-          { string: '123,123', expected: true },
-          { string: '123,123.123', expected: true },
-          { string: '123.123,123', expected: true },
-          { string: '123,123,123', expected: true },
-          { string: '123.123.123', expected: true },
-          { string: '123,123,123.123', expected: true },
-          { string: '123.123.123,123', expected: true },
-          { string: '123,123,123,123', expected: true },
-          { string: 'HELLO WORLD', expected: true },
-          { string: 'H3LL0 W0RLD', expected: true }
+          { input: 1, expected: false },
+          { input: undefined, expected: false },
+          { input: null, expected: false },
+          { input: 'HELLO', expected: true },
+          { input: 'hello', expected: false },
+          { input: 'Hello', expected: false },
+          { input: 'hELLO', expected: false },
+          { input: '123', expected: true },
+          { input: '123.123', expected: true },
+          { input: '123,123', expected: true },
+          { input: '123,123.123', expected: true },
+          { input: '123.123,123', expected: true },
+          { input: '123,123,123', expected: true },
+          { input: '123.123.123', expected: true },
+          { input: '123,123,123.123', expected: true },
+          { input: '123.123.123,123', expected: true },
+          { input: '123,123,123,123', expected: true },
+          { input: 'HELLO WORLD', expected: true },
+          { input: 'H3LL0 W0RLD', expected: true }
         ]
-
-        testCases.forEach((testCase) => {
-          it(`should return ${testCase.expected} for ${testCase.string} that is in capital letters`, () => {
-            const validator = new ValidationCollection({name: 'test'});
-            expect(validator.isString.thatIsInCapitalLetters(testCase.string)).toBe(testCase.expected);
-          })
-          it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that is in capital letters if shouldThrow is set`, () => {
-            const validator = new ValidationCollection({ shouldThrow: true });
-            if (testCase.expected) {
-              expect(() => validator.isString.thatIsInCapitalLetters(testCase.string)).not.toThrow(Error);
-            } else {
-              expect(() => validator.isString.thatIsInCapitalLetters(testCase.string)).toThrow(Error);
-            }
-          })
-        })
+        const validationFunction = (input: any) => validate(input).isString().thatIsInCapitalLetters();
+        runValidationTests('thatIsInCapitalLetters', validationFunction, testCases);
       }),
 
       describe('isString.thatIsInSmallLetters() validator', () => {
         const testCases = [
-          { string: 1, expected: false },
-          { string: undefined, expected: false },
-          { string: null, expected: false },
-          { string: 'HELLO', expected: false },
-          { string: 'hello', expected: true },
-          { string: 'Hello', expected: false },
-          { string: 'hELLO', expected: false },
-          { string: '123', expected: true },
-          { string: '123.123', expected: true },
-          { string: '123,123', expected: true },
-          { string: '123,123.123', expected: true },
-          { string: '123.123,123', expected: true },
-          { string: '123,123,123', expected: true },
-          { string: '123.123.123', expected: true },
-          { string: '123,123,123.123', expected: true },
-          { string: '123.123.123,123', expected: true },
-          { string: '123,123,123,123', expected: true },
-          { string: 'HELLO WORLD', expected: false },
-          { string: 'H3LL0 W0RLD', expected: false }
+          { input: 1, expected: false },
+          { input: undefined, expected: false },
+          { input: null, expected: false },
+          { input: 'HELLO', expected: false },
+          { input: 'hello', expected: true },
+          { input: 'Hello', expected: false },
+          { input: 'hELLO', expected: false },
+          { input: '123', expected: true },
+          { input: '123.123', expected: true },
+          { input: '123,123', expected: true },
+          { input: '123,123.123', expected: true },
+          { input: '123.123,123', expected: true },
+          { input: '123,123,123', expected: true },
+          { input: '123.123.123', expected: true },
+          { input: '123,123,123.123', expected: true },
+          { input: '123.123.123,123', expected: true },
+          { input: '123,123,123,123', expected: true },
+          { input: 'HELLO WORLD', expected: false },
+          { input: 'H3LL0 W0RLD', expected: false }
         ]
-
-        testCases.forEach((testCase) => {
-          it(`should return ${testCase.expected} for ${testCase.string} that is not in capital letters`, () => {
-            const validator = new ValidationCollection({name:'test'});
-            expect(validator.isString.thatIsInSmallLetters(testCase.string)).toBe(testCase.expected);
-          })
-          it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that is not in capital letters if shouldThrow is set`, () => {
-            const validator = new ValidationCollection({ shouldThrow: true });
-            if (testCase.expected) {
-              expect(() => validator.isString.thatIsInSmallLetters(testCase.string)).not.toThrow(Error);
-            } else {
-              expect(() => validator.isString.thatIsInSmallLetters(testCase.string)).toThrow(Error);
-            }
-          })
-        })
+        const validationFunction = (input: any) => validate(input).isString().thatIsInSmallLetters();
+        runValidationTests('thatIsInSmallLetters', validationFunction, testCases);
       }),
 
       describe('isString.firstLetterIsCapital() validator', () => {
         const testCases = [
-          { string: 1, expected: false },
-          { string: undefined, expected: false },
-          { string: null, expected: false },
-          { string: 'HELLO', expected: true },
-          { string: 'hello', expected: false },
-          { string: 'Hello', expected: true },
-          { string: 'hELLO', expected: false },
-          { string: '123', expected: true },
-          { string: '123.123', expected: true },
-          { string: '123,123', expected: true },
-          { string: '123,123.123', expected: true },
-          { string: '123.123,123', expected: true },
-          { string: '123,123,123', expected: true },
-          { string: '123.123.123', expected: true },
-          { string: '123,123,123.123', expected: true },
-          { string: '123.123.123,123', expected: true },
-          { string: '123,123,123,123', expected: true },
-          { string: 'HELLO WORLD', expected: true },
-          { string: 'H3LL0 W0RLD', expected: true }
+          { input: 1, expected: false },
+          { input: undefined, expected: false },
+          { input: null, expected: false },
+          { input: 'HELLO', expected: true },
+          { input: 'hello', expected: false },
+          { input: 'Hello', expected: true },
+          { input: 'hELLO', expected: false },
+          { input: '123', expected: true },
+          { input: '123.123', expected: true },
+          { input: '123,123', expected: true },
+          { input: '123,123.123', expected: true },
+          { input: '123.123,123', expected: true },
+          { input: '123,123,123', expected: true },
+          { input: '123.123.123', expected: true },
+          { input: '123,123,123.123', expected: true },
+          { input: '123.123.123,123', expected: true },
+          { input: '123,123,123,123', expected: true },
+          { input: 'HELLO WORLD', expected: true },
+          { input: 'H3LL0 W0RLD', expected: true }
         ]
-
-        testCases.forEach((testCase) => {
-          it(`should return ${testCase.expected} for ${testCase.string} that is in capital letters`, () => {
-            const validator = new ValidationCollection({name: 'test'});
-            expect(validator.isString.firstLetterIsCapital(testCase.string)).toBe(testCase.expected);
-          })
-          it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that is in capital letters if shouldThrow is set`, () => {
-            const validator = new ValidationCollection({ shouldThrow: true });
-            if (testCase.expected) {
-              expect(() => validator.isString.firstLetterIsCapital(testCase.string)).not.toThrow(Error);
-            } else {
-              expect(() => validator.isString.firstLetterIsCapital(testCase.string)).toThrow(Error);
-            }
-          })
-        })
+        const validationFunction = (input: any) => validate(input).isString().firstLetterIsCapital();
+        runValidationTests('firstLetterIsCapital', validationFunction, testCases);
       }),
 
       describe('isString.thatEndsWith() validator', () => {
@@ -332,15 +337,14 @@ describe('isString() validator', () => {
 
         testCases.forEach((testCase) => {
           it(`should return ${testCase.expected} for ${testCase.string} that ends with ${testCase.subString}`, () => {
-            const validator = new ValidationCollection({name: 'test'});
-            expect(validator.isString.thatEndsWith(testCase.string, testCase.subString)).toBe(testCase.expected);
+            expect(validate(testCase.string).isString().thatEndsWith(testCase.subString).confirm()).toBe(testCase.expected);
           })
           it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that ends with ${testCase.subString} if shouldThrow is set`, () => {
-            const validator = new ValidationCollection({ shouldThrow: true });
+            validate.setThrowable(true);
             if (testCase.expected) {
-              expect(() => validator.isString.thatEndsWith(testCase.string, testCase.subString)).not.toThrow(Error);
+              expect(() => validate(testCase.string).isString().thatEndsWith(testCase.subString)).not.toThrow(Error);
             } else {
-              expect(() => validator.isString.thatEndsWith(testCase.string, testCase.subString)).toThrow(Error);
+              expect(() => validate(testCase.string).isString().thatEndsWith(testCase.subString)).toThrow(Error);
             }
           })
         })
@@ -376,15 +380,14 @@ describe('isString() validator', () => {
 
       testCases.forEach((testCase) => {
         it(`should return ${testCase.expected} for ${testCase.string} that starts with ${testCase.subString}`, () => {
-          const validator = new ValidationCollection({name: 'test'});
-          expect(validator.isString.thatStartsWith(testCase.string, testCase.subString)).toBe(testCase.expected);
+          expect(validate(testCase.string).isString().thatStartsWith(testCase.subString).confirm()).toBe(testCase.expected);
         })
         it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that starts with ${testCase.subString} if shouldThrow is set`, () => {
-          const validator = new ValidationCollection({ shouldThrow: true });
+          validate.setThrowable(true);
           if (testCase.expected) {
-            expect(() => validator.isString.thatStartsWith(testCase.string, testCase.subString)).not.toThrow(Error);
+            expect(() => validate(testCase.string).isString().thatStartsWith(testCase.subString)).not.toThrow(Error);
           } else {
-            expect(() => validator.isString.thatStartsWith(testCase.string, testCase.subString)).toThrow(Error);
+            expect(() => validate(testCase.string).isString().thatStartsWith(testCase.subString)).toThrow(Error);
           }
         })
       })
@@ -392,70 +395,44 @@ describe('isString() validator', () => {
 
     describe('isString.thatIsAnEmail() validator', () => {
       const testCases = [
-        { string: 1, expected: false },
-        { string: undefined, expected: false },
-        { string: null, expected: false },
-        { string: 'hello', expected: false },
-        { string: 'hello@', expected: false },
-        { string: 'hello@world', expected: false },
-        { string: 'hello@world.', expected: false },
-        { string: 'hello@world.com', expected: true },
-        { string: 'hello.world@ts.se', expected: true },
-        { string: '<script>alert("hello world")</script>', expected: false },
-        { string: 'hello.world@ts', expected: false }
+        { input: 1, expected: false },
+        { input: undefined, expected: false },
+        { input: null, expected: false },
+        { input: 'hello', expected: false },
+        { input: 'hello@', expected: false },
+        { input: 'hello@world', expected: false },
+        { input: 'hello@world.', expected: false },
+        { input: 'hello@world.com', expected: true },
+        { input: 'h@world.com', expected: false },
+        { input: 'hello.world@ts.se', expected: true },
+        { input: '<script>alert("hello world")</script>', expected: false },
+        { input: 'hello.world@ts', expected: false }
       ]
-
-      testCases.forEach((testCase) => {
-        it(`should return ${testCase.expected} for ${testCase.string} that is an email`, () => {
-          const validator = new ValidationCollection({name: 'test'});
-
-          expect(validator.isString.thatIsAnEmail(testCase.string)).toBe(testCase.expected);
-        })
-        it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that is an email if shouldThrow is set`, () => {
-          const validator = new ValidationCollection({ shouldThrow: true });
-          if (testCase.expected) {
-            expect(() => validator.isString.thatIsAnEmail(testCase.string)).not.toThrow(Error);
-          } else {
-            expect(() => validator.isString.thatIsAnEmail(testCase.string)).toThrow(Error);
-          }
-        })
-      })
+      const validationFunction = (input: any) => validate(input).isString().thatIsAnEmail();
+      runValidationTests('thatIsAnEmail', validationFunction, testCases);
     }),
 
     describe('isString.thatIsAUrl() validator', () => {
       const testCases = [
-        { string: 1, expected: false },
-        { string: undefined, expected: false },
-        { string: null, expected: false },
-        { string: 'hello', expected: false },
-        { string: 'hello@', expected: false },
-        { string: 'hello@world', expected: false },
-        { string: 'hello@world.', expected: false },
-        { string: 'hello@world.com', expected: false },
-        { string: 'http://hello.world', expected: true },
-        { string: 'https://hello.world', expected: true },
-        { string: 'http://hello.world.com', expected: true },
-        { string: 'https://hello.world.com/testing', expected: true },
-        { string: 'ftp://hello.world', expected: true },
-        { string: 'ftp://hello.world.com', expected: true },
-        { string: 'ftps://hello.world', expected: true },
-        { string: 'ftps://hello.world.com', expected: true },
-        { string: 'http://<script>alert("hello world")</script>', expected: false }
+        { input: 1, expected: false },
+        { input: undefined, expected: false },
+        { input: null, expected: false },
+        { input: 'hello', expected: false },
+        { input: 'hello@', expected: false },
+        { input: 'hello@world', expected: false },
+        { input: 'hello@world.', expected: false },
+        { input: 'hello@world.com', expected: false },
+        { input: 'http://hello.world', expected: true },
+        { input: 'https://hello.world', expected: true },
+        { input: 'http://hello.world.com', expected: true },
+        { input: 'https://hello.world.com/testing', expected: true },
+        { input: 'ftp://hello.world', expected: true },
+        { input: 'ftp://hello.world.com', expected: true },
+        { input: 'ftps://hello.world', expected: true },
+        { input: 'ftps://hello.world.com', expected: true },
+        { input: 'http://<script>alert("hello world")</script>', expected: false }
       ]
-
-      testCases.forEach((testCase) => {
-        it(`should return ${testCase.expected} for ${testCase.string} that is a url`, () => {
-          const validator = new ValidationCollection({name: 'test'});
-          expect(validator.isString.thatIsAUrl(testCase.string)).toBe(testCase.expected);
-        })
-        it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${testCase.string} that is a url if shouldThrow is set`, () => {
-          const validator = new ValidationCollection({ shouldThrow: true });
-          if (testCase.expected) {
-            expect(() => validator.isString.thatIsAUrl(testCase.string)).not.toThrow(Error);
-          } else {
-            expect(() => validator.isString.thatIsAUrl(testCase.string)).toThrow(Error);
-          }
-        })
-      })
+      const validationFunction = (input: any) => validate(input).isString().thatIsAUrl();
+      runValidationTests('thatIsAUrl', validationFunction, testCases);
     })
   })

@@ -186,6 +186,7 @@ export class StringValidationClass extends BaseValidationClass {
     }
     thatIsAnEmail() {
         let result = this.type();
+        let partResult = false;
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -194,8 +195,13 @@ export class StringValidationClass extends BaseValidationClass {
         if (!result) {
             this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to include @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
         }
-        result && (result = this.unknownData.includes('.'));
-        if (!result) {
+        result && (partResult = this.unknownData.indexOf('@') > 2);
+        if (!partResult) {
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to have at least 2 characters before the @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+        }
+        ;
+        result && (partResult = this.unknownData.includes('.'));
+        if (!partResult) {
             this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to include .` }, (this.name && this.name !== '' ? { name: this.name } : {})));
         }
         if (this.unknownData.lastIndexOf('.') > this.unknownData.length - 3) {

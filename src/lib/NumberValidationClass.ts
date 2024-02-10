@@ -1,4 +1,4 @@
-import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass.js';
+import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass';
 
 
 export class NumberValidationClass extends BaseValidationClass {
@@ -12,7 +12,7 @@ export class NumberValidationClass extends BaseValidationClass {
       this.handleValidationFailure()
       return false;
     }
-    const isNumber = typeof this.unknownData === 'number';
+    const isNumber = (typeof this.unknownData === 'number');
     if (!isNumber) {
       this.problems.push({
         what: What.unexpectedType,

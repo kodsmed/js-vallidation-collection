@@ -1,7 +1,12 @@
-import  ValidationCollection  from '../src/ValidationCollection'
-import { ArgumentObject } from '../src/lib/BaseValidationClass'
+import validate from "../src/validate";
+
 
 type TestCase = { input: unknown, expected: boolean }
+
+afterEach(() => {
+  validate.clearReports();
+  validate.setThrowable(false);
+});
 
 const describeInput = (input: unknown): string => {
   if (Array.isArray(input)) return 'array';
@@ -16,46 +21,24 @@ const describeInput = (input: unknown): string => {
   return input.toString();
 }
 
-function runValidationTests (method: string, testCases: Array<{ input: unknown, expected: boolean }>, argument: ArgumentObject)  {
-  describe(`${method} validator`, () => {
-    testCases.forEach(testCase => {
-      it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
-        const validationCollection = new ValidationCollection(argument);
-        expect((validationCollection.isObject as any)[method](testCase.input)).toBe(testCase.expected);
-      });
-
-      it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
-        const argumentObject = { ...argument, shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
-        if (testCase.expected) {
-          expect(() => (validator.isObject as any)[method](testCase.input)).not.toThrowError();
-        } else {
-          expect(() => (validator.isObject as any)[method](testCase.input)).toThrowError();
-        }
-      });
+function runValidationTests (method: string, validatorFunction: (input: any) => any, testCases: TestCase[])  {
+  testCases.forEach(testCase => {
+    it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
+      expect(validatorFunction(testCase.input).confirm()).toBe(testCase.expected);
     });
-  })
-}
-function runInstanceValidationTests (method: string, testCases: Array<{ input: unknown, expected: boolean }>, instance:any, argument: ArgumentObject)  {
-  describe(`${method} validator`, () => {
-    testCases.forEach(testCase => {
-      it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
-        const validationCollection = new ValidationCollection(argument);
-        expect((validationCollection.isObject as any)[method](testCase.input, instance)).toBe(testCase.expected);
-      });
 
-      it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
-        const argumentObject = { ...argument, shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
-        if (testCase.expected) {
-          expect(() => (validator.isObject as any)[method](testCase.input, instance)).not.toThrowError();
-        } else {
-          expect(() => (validator.isObject as any)[method](testCase.input, instance)).toThrowError();
-        }
-      });
+    it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
+      validate.setThrowable(true);
+      if (testCase.expected) {
+        expect(() => validatorFunction(testCase.input)).not.toThrowError();
+      } else {
+        expect(() => validatorFunction(testCase.input)).toThrowError();
+      }
+      validate.clearReports();
     });
-  })
+  });
 }
+
 const stringsArray=[
   '',
   'a',
@@ -114,22 +97,8 @@ describe('isObject Validators', () => {
     symbolsArray.forEach(symbol => testCases.push({ input: symbol, expected: false }))
     nonValidValuesArray.forEach(nonValid => testCases.push({ input: nonValid, expected: false }))
 
-    testCases.forEach(testCase => {
-      it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
-        const validationCollection = new ValidationCollection({});
-        expect(validationCollection.isObject(testCase.input)).toBe(testCase.expected);
-      });
-
-      it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
-        const argumentObject = { shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
-        if (testCase.expected) {
-          expect(() => validator.isObject(testCase.input)).not.toThrowError();
-        } else {
-          expect(() => validator.isObject(testCase.input)).toThrowError();
-        }
-      });
-    });
+    const validatorFunction = (input: any) => validate(input).isObject()
+    runValidationTests('isObject', validatorFunction, testCases)
   })
   describe('isObject.withMinimumLength()', () => {
     const minimumLengthValue = 2
@@ -146,7 +115,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 1, b: 2, c: 3 }, expected: true })
     testCases.push({ input: { a: 1, b: 2, c: 3, d: 4 }, expected: true })
 
-    runValidationTests('withMinimumLength', testCases, { minimumLength: minimumLengthValue })
+    const validatorFunction = (input: any) => validate(input).isObject().withMinimumLength(minimumLengthValue)
+    runValidationTests('withMinimumLength', validatorFunction, testCases)
   })
   describe('isObject.withMaximumLength()', () => {
     const maximumLengthValue = 2
@@ -163,7 +133,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 1, b: 2, c: 3 }, expected: false })
     testCases.push({ input: { a: 1, b: 2, c: 3, d: 4 }, expected: false })
 
-    runValidationTests('withMaximumLength', testCases, { maximumLength: maximumLengthValue })
+    const validatorFunction = (input: any) => validate(input).isObject().withMaximumLength(maximumLengthValue)
+    runValidationTests('withMaximumLength', validatorFunction, testCases)
   })
   describe('isObject.withExactLength()', () => {
     const exactLengthValue = 2
@@ -180,7 +151,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 1, b: 2, c: 3 }, expected: false })
     testCases.push({ input: { a: 1, b: 2, c: 3, d: 4 }, expected: false })
 
-    runValidationTests('withExactLength', testCases, { exactLength: exactLengthValue })
+    const validatorFunction = (input: any) => validate(input).isObject().withExactLength(exactLengthValue)
+    runValidationTests('withExactLength', validatorFunction, testCases)
   })
   describe('isObject.thatMayHaveProperties()', () => {
     const validPropertiesValue = ['a', 'b']
@@ -197,7 +169,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 1, b: 2, c: 3 }, expected: false })
     testCases.push({ input: { a: 1, b: 2, c: 3, d: 4 }, expected: false })
 
-    runValidationTests('thatMayHaveProperties', testCases, { validProperties: validPropertiesValue })
+    const validatorFunction = (input: any) => validate(input).isObject().thatMayHaveProperties(validPropertiesValue)
+    runValidationTests('thatMayHaveProperties', validatorFunction, testCases)
   })
   describe('isObject.thatMustHaveProperties()', () => {
     const validPropertiesValue = ['a', 'b']
@@ -214,7 +187,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 1, b: 2, c: 3 }, expected: false })
     testCases.push({ input: { a: 1, b: 2, c: 3, d: 4 }, expected: false })
 
-    runValidationTests('thatMustHaveProperties', testCases, { validProperties: validPropertiesValue })
+    const validatorFunction = (input: any) => validate(input).isObject().thatMustHaveProperties(validPropertiesValue)
+    runValidationTests('thatMustHaveProperties', validatorFunction, testCases)
   })
   describe('isObject.thatMustHaveSanctionedValues()', () => {
     const validValuesValue = ['a', 'b', 3]
@@ -246,7 +220,8 @@ describe('isObject Validators', () => {
     testCases.push({ input: { a: 'c', b: 'c' }, expected: false })
     testCases.push({ input: { a: 'a', b: 'b', c: 3 }, expected: true })
 
-    runValidationTests('thatMustHaveSanctionedValues', testCases, { validValues: validValuesValue })
+    const validatorFunction = (input: any) => validate(input).isObject().thatMustHaveSanctionedValues(validValuesValue)
+    runValidationTests('thatMustHaveSanctionedValues', validatorFunction, testCases)
   })
 describe('isObject.thatMustHaveSanctionedValueTypes()', () => {
   const validValueTypes = ['string', 'array']
@@ -265,26 +240,7 @@ describe('isObject.thatMustHaveSanctionedValueTypes()', () => {
       testCases.push({ input, expected })
     }
   }
-  runValidationTests('thatMustHaveSanctionedValueTypes', testCases, { validValueTypes })
-  })
-  describe('isObject.thatIsInstanceOf()', () => {
-    const testCases: Array<TestCase> = []
-    stringsArray.forEach(string => testCases.push({ input: string, expected: false }))
-    numbersArray.forEach(number => testCases.push({ input: number, expected: false }))
-    arraysArray.forEach(array => testCases.push({ input: array, expected: false }))
-    booleansArray.forEach(boolean => testCases.push({ input: boolean, expected: false }))
-    symbolsArray.forEach(symbol => testCases.push({ input: symbol, expected: false }))
-    nonValidValuesArray.forEach(nonValid => testCases.push({ input: nonValid, expected: false }))
-    objectsArray.forEach(object => testCases.push({ input: object, expected: true }))
-    testCases.push({ input: {}, expected: true })
-    runInstanceValidationTests('thatIsInstanceOf', testCases, Object, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Error(), expected: true}], Error, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Error(), expected: true}], Object, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Array(), expected: false}], Object, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Array(), expected: false}], Array, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Date(), expected: true}], Date,  {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Date(), expected: true}], Object, {})
-    runInstanceValidationTests('thatIsInstanceOf', [{input: new Date(), expected: false}], Array, {})
-
+  const validatorFunction = (input: any) => validate(input).isObject().thatMustHaveSanctionedValueTypes(validValueTypes)
+  runValidationTests('thatMustHaveSanctionedValueTypes', validatorFunction, testCases)
   })
 })

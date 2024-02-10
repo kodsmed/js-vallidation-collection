@@ -2,7 +2,7 @@ import { BaseValidationClass } from '../src/lib/BaseValidationClass';
 
 describe('BaseValidationClass Test suit', () => {
   it('should create a new instance of BaseValidationClass', () => {
-    const baseValidationClass = new BaseValidationClass({});
+    const baseValidationClass = new BaseValidationClass();
     expect(baseValidationClass).toBeInstanceOf(BaseValidationClass);
   })
 })

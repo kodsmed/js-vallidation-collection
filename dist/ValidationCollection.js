@@ -39,6 +39,19 @@ export class ValidationCollection {
         ValidationCollection.objectValidationClass.validatorName = name;
         ValidationCollection.arrayValidationClass.validatorName = name;
     }
+    static confirm() {
+        const problemsEncountered = ValidationCollection.arrayValidationClass.hasProblems
+            || ValidationCollection.objectValidationClass.hasProblems
+            || ValidationCollection.stringValidationClass.hasProblems
+            || ValidationCollection.numberValidationClass.hasProblems;
+        if (problemsEncountered) {
+            if (ValidationCollection.throwsErrors) {
+                throw new Error(ValidationCollection.reportAsString());
+            }
+            return false;
+        }
+        return true;
+    }
     isString() {
         const self = ValidationCollection;
         const callableObject = Object.assign(function () {

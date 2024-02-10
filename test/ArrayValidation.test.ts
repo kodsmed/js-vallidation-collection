@@ -1,7 +1,12 @@
-import  ValidationCollection  from '../src/ValidationCollection'
-import { ArgumentObject } from '../src/lib/BaseValidationClass'
+import  validate from '../src/validate'
+
 
 type TestCase = { input: unknown, expected: boolean }
+
+afterEach(() => {
+  validate.clearReports();
+  validate.setThrowable(false);
+});
 
 const describeInput = (input: unknown): string => {
   if (Array.isArray(input)) return 'array';
@@ -16,22 +21,21 @@ const describeInput = (input: unknown): string => {
   return input.toString();
 }
 
-function runValidationTests (method: string, testCases: Array<{ input: unknown, expected: boolean }>, argument: ArgumentObject)  {
-  describe(`${method} validator`, () => {
+function runValidationTests (description: string, validatorFunction: (input: any) => any, testCases: TestCase[])  {
+  describe(`isArray.${description}`, () => {
     testCases.forEach(testCase => {
       it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
-        const validationCollection = new ValidationCollection(argument);
-        expect((validationCollection.isArray as any)[method](testCase.input)).toBe(testCase.expected);
+        expect(validatorFunction(testCase.input).confirm()).toBe(testCase.expected);
       });
 
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
-        const argumentObject = { ...argument, shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => (validator.isArray as any)[method](testCase.input)).not.toThrowError();
+          expect(() => validatorFunction(testCase.input)).not.toThrowError();
         } else {
-          expect(() => (validator.isArray as any)[method](testCase.input)).toThrowError();
+          expect(() => validatorFunction(testCase.input)).toThrowError();
         }
+        validate.clearReports();
       });
     });
   })
@@ -115,18 +119,18 @@ describe('isArray Validators', () => {
 
     testCases.forEach(testCase => {
       it(`should return ${testCase.expected} for ${describeInput(testCase.input)}`, () => {
-        const validationCollection = new ValidationCollection({});
-        expect(validationCollection.isArray(testCase.input)).toBe(testCase.expected);
+        expect(validate(testCase.input).isArray().confirm()).toBe(testCase.expected);
+        validate.clearReports();
       });
 
       it(`${testCase.expected === true ? 'Should not throw' : 'Should throw'} for ${describeInput(testCase.input)} if shouldThrow is set`, () => {
-        const argumentObject = { shouldThrow: true, name: 'test' }
-        const validator = new ValidationCollection(argumentObject);
+        validate.setThrowable(true);
         if (testCase.expected) {
-          expect(() => validator.isArray(testCase.input)).not.toThrowError();
+          expect(() => validate(testCase.input).isArray()).not.toThrowError();
         } else {
-          expect(() => validator.isArray(testCase.input)).toThrowError();
+          expect(() => validate(testCase.input).isArray()).toThrowError();
         }
+        validate.clearReports();
       });
     });
   })
@@ -143,7 +147,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: array.length >= minimumLengthValue }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: array.length >= minimumLengthValue }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('withMinimumLength', testCases, { minimumLength: minimumLengthValue })
+
+    const validatorFunction = (input: any) => validate(input).isArray().withMinimumLength(minimumLengthValue);
+    runValidationTests('withMinimumLength', validatorFunction, testCases)
   })
   describe('isArray.withMaximumLength()', () => {
     const maximumLengthValue = 2
@@ -158,7 +164,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: array.length <= maximumLengthValue }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: array.length <= maximumLengthValue }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('withMaximumLength', testCases, { maximumLength: maximumLengthValue })
+
+    const validatorFunction = (input: any) => validate(input).isArray().withMaximumLength(maximumLengthValue);
+    runValidationTests('withMaximumLength', validatorFunction, testCases)
   })
   describe('isArray.withExactLength()', () => {
     const exactLengthValue = 2
@@ -173,7 +181,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: array.length === exactLengthValue }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: array.length === exactLengthValue }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('withExactLength', testCases, { exactLength: exactLengthValue })
+
+    const validatorFunction = (input: any) => validate(input).isArray().withExactLength(exactLengthValue);
+    runValidationTests('withExactLength', validatorFunction, testCases)
   })
   describe('isArray.ofStrings()', () => {
     const testCases: TestCase[] = [
@@ -187,7 +197,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofStrings', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofStrings();
+    runValidationTests('ofStrings', validatorFunction, testCases)
   })
   describe('isArray.ofNumbers()', () => {
     const testCases: TestCase[] = [
@@ -201,7 +213,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofNumbers', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofNumbers();
+    runValidationTests('ofNumbers', validatorFunction, testCases)
   })
   describe('isArray.ofObjects()', () => {
     const testCases: TestCase[] = [
@@ -215,7 +229,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: true })) // dates are objects
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofObjects', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofObjects();
+    runValidationTests('ofObjects', validatorFunction, testCases)
   })
   describe('isArray.ofArrays()', () => {
     const testCases: TestCase[] = [
@@ -229,7 +245,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofArrays', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofArrays();
+    runValidationTests('ofArrays', validatorFunction, testCases)
   })
   describe('isArray.ofBooleans()', () => {
     const testCases: TestCase[] = [
@@ -243,7 +261,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofBooleans', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofBooleans();
+    runValidationTests('ofBooleans', validatorFunction, testCases)
   })
   describe('isArray.ofFunctions()', () => {
     const testCases: TestCase[] = [
@@ -257,7 +277,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofFunctions', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofFunctions();
+    runValidationTests('ofFunctions', validatorFunction, testCases)
   })
   describe('isArray.ofSymbols()', () => {
     const testCases: TestCase[] = [
@@ -271,7 +293,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: true }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofSymbols', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofSymbols();
+    runValidationTests('ofSymbols', validatorFunction, testCases)
   })
   describe('isArray.ofDates()', () => {
     const testCases: TestCase[] = [
@@ -285,7 +309,9 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: true }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('ofDates', testCases, {})
+
+    const validatorFunction = (input: any) => validate(input).isArray().ofDates();
+    runValidationTests('ofDates', validatorFunction, testCases)
   })
   describe('isArray.thatMustHaveSanctionedValues()', () => {
     const whiteListedValues = [1, 2, 3]
@@ -300,7 +326,6 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    runValidationTests('thatMustHaveSanctionedValues', testCases, { validValues: whiteListedValues })
 
     const whiteListedValued2 = ['a', 'b', 'c']
     const testCases2: TestCase[] = [
@@ -314,7 +339,6 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases2.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases2.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases2.push({ input: array, expected: false }))
-    runValidationTests('thatMustHaveSanctionedValues', testCases2, { validValues: whiteListedValued2 })
 
     const whiteListedValues3 = [true]
     const testCases3: TestCase[] = [
@@ -328,23 +352,103 @@ describe('isArray Validators', () => {
     dateArrays.forEach(array => testCases3.push({ input: array, expected: false }))
     symbolArrays.forEach(array => testCases3.push({ input: array, expected: false }))
     nonArrays.forEach(array => testCases3.push({ input: array, expected: false }))
-    runValidationTests('thatMustHaveSanctionedValues', testCases3, { validValues: whiteListedValues3 })
+
+    const validatorFunction = (input: any) => validate(input).isArray().thatMustHaveSanctionedValues(whiteListedValues);
+    runValidationTests('thatMustHaveSanctionedValues', validatorFunction, testCases)
+    const validatorFunction2 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValues(whiteListedValued2);
+    runValidationTests('thatMustHaveSanctionedValues', validatorFunction2, testCases2)
+    const validatorFunction3 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValues(whiteListedValues3);
   })
   describe('isArray.thatMustHaveSanctionedValueTypes()', () => {
     const whiteListedValueTypes = ['number', 'string']
-    const testCases: TestCase[] = [
+    const testCasesNumbers: TestCase[] = [
     ]
-    numberArrays.forEach(array => testCases.push({ input: array, expected: true }))
-    stringArrays.forEach(array => testCases.push({ input: array, expected: true }))
-    booleanArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    objectArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    arrayArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    functionArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    dateArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    symbolArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    nonArrays.forEach(array => testCases.push({ input: array, expected: false }))
-    testCases.push({ input: NaN, expected: false })
-    testCases.push({ input: ['a',1,'b',2], expected: true })
-    runValidationTests('thatMustHaveSanctionedValueTypes', testCases, { validValueTypes: whiteListedValueTypes })
+    numberArrays.forEach(array => testCasesNumbers.push({ input: array, expected: true }))
+    stringArrays.forEach(array => testCasesNumbers.push({ input: array, expected: true }))
+    booleanArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    objectArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    arrayArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    functionArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    dateArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    symbolArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    nonArrays.forEach(array => testCasesNumbers.push({ input: array, expected: false }))
+    testCasesNumbers.push({ input: NaN, expected: false })
+    testCasesNumbers.push({ input: ['a',1,'b',2], expected: true })
+
+    const whiteListedValueTypes2 = ['boolean']
+    const testCasesBooleans: TestCase[] = [
+    ]
+    numberArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    stringArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    booleanArrays.forEach(array => testCasesBooleans.push({ input: array, expected: true }))
+    objectArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    arrayArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    functionArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    dateArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    symbolArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    nonArrays.forEach(array => testCasesBooleans.push({ input: array, expected: false }))
+    testCasesBooleans.push({ input: NaN, expected: false })
+    testCasesBooleans.push({ input: ['a',1,'b',2], expected: false })
+
+    const whiteListedValueTypes3 = ['object']
+    const testCasesObjects: TestCase[] = [
+    ]
+
+    numberArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    stringArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    booleanArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    objectArrays.forEach(array => testCasesObjects.push({ input: array, expected: true }))
+    arrayArrays.forEach(array => testCasesObjects.push({ input: array, expected: true })) // arrays are objects
+    functionArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    dateArrays.forEach(array => testCasesObjects.push({ input: array, expected: true })) // dates are objects
+    symbolArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    nonArrays.forEach(array => testCasesObjects.push({ input: array, expected: false }))
+    testCasesObjects.push({ input: NaN, expected: false })
+    testCasesObjects.push({ input: ['a',1,'b',2], expected: false })
+
+    const whiteListedValueTypes4 = ['array']
+    const testCasesArrays: TestCase[] = [
+    ]
+    numberArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    stringArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    booleanArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    objectArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    arrayArrays.forEach(array => testCasesArrays.push({ input: array, expected: true }))
+    functionArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    dateArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    symbolArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    nonArrays.forEach(array => testCasesArrays.push({ input: array, expected: false }))
+    testCasesArrays.push({ input: NaN, expected: false })
+    testCasesArrays.push({ input: ['a',1,'b',2], expected: false })
+
+    const whiteListedValueTypes5 = ['function']
+    const testCasesFunctions: TestCase[] = [
+    ]
+    numberArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    stringArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    booleanArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    objectArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    arrayArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    functionArrays.forEach(array => testCasesFunctions.push({ input: array, expected: true }))
+    dateArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    symbolArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    nonArrays.forEach(array => testCasesFunctions.push({ input: array, expected: false }))
+    testCasesFunctions.push({ input: NaN, expected: false })
+    testCasesFunctions.push({ input: ['a',1,'b',2], expected: false })
+
+    const validateFunction = (input: any) => validate(input).isArray().thatMustHaveSanctionedValueTypes(whiteListedValueTypes);
+    runValidationTests('thatMustHaveSanctionedValueTypes', validateFunction, testCasesNumbers)
+
+    const validateFunction2 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValueTypes(whiteListedValueTypes2);
+    runValidationTests('thatMustHaveSanctionedValueTypes', validateFunction2, testCasesBooleans)
+
+    const validateFunction3 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValueTypes(whiteListedValueTypes3);
+    runValidationTests('thatMustHaveSanctionedValueTypes', validateFunction3, testCasesObjects)
+
+    const validateFunction4 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValueTypes(whiteListedValueTypes4);
+    runValidationTests('thatMustHaveSanctionedValueTypes', validateFunction4, testCasesArrays)
+
+    const validateFunction5 = (input: any) => validate(input).isArray().thatMustHaveSanctionedValueTypes(whiteListedValueTypes5);
+    runValidationTests('thatMustHaveSanctionedValueTypes', validateFunction5, testCasesFunctions)
   })
 })

@@ -1,7 +1,7 @@
-import { BaseValidationClass, ErroneousData, What } from "./BaseValidationClass.js";
-import { StringValidationClass } from "./StringValidationClass.js";
-import { NumberValidationClass } from "./NumberValidationClass.js";
-import { ObjectValidationClass } from "./ObjectValidationClass.js";
+import { BaseValidationClass, ErroneousData, What } from "./BaseValidationClass";
+import { StringValidationClass } from "./StringValidationClass";
+import { NumberValidationClass } from "./NumberValidationClass";
+import { ObjectValidationClass } from "./ObjectValidationClass";
 
 
 export class ArrayValidationClass extends BaseValidationClass {
@@ -185,6 +185,11 @@ export class ArrayValidationClass extends BaseValidationClass {
     for (let index = 0; index < dataArray.length; index++) {
       const data = dataArray[index];
       if (!sanctionedTypes.includes(typeof data)) {
+        // special case, Array is an object, so we need to check for it.
+        if (sanctionedTypes.includes('array') && typeof data === 'object' && Array.isArray(data)) {
+          continue;
+        }
+
         this.problems.push({
           what: What.unexpectedValueTypes,
           in: 'Array',
