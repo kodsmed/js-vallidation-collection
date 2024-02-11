@@ -5,10 +5,12 @@ export class StringValidationClass extends BaseValidationClass {
     super();
   }
 
+  // exposed to interface
   type(): boolean {
     return this.internalType(this.unknownData);
   }
 
+  // not exposed to interface
   internalType(unknownData: unknown): boolean {
     const invalid = this.isNullOrUndefined(unknownData);
     if(invalid) {
@@ -30,8 +32,18 @@ export class StringValidationClass extends BaseValidationClass {
     return true;
   }
 
+  // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length without errors
+  // if we use the type() method, it will report errors, and we don't want that in this case
+  typeNoReport(): boolean {
+    const isInvalid = this.isNullOrUndefined(this.unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    return typeof this.unknownData === 'string';
+  }
+
   withMinimumLength(minimumLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -53,7 +65,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   withMaximumLength(maximumLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -75,7 +87,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   withExactLength(exactLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -97,7 +109,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatIncludes(subString: string): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -118,7 +130,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatDoesNotIncludes(subString: string): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -142,7 +154,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatIsInCapitalLetters(): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -164,7 +176,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatIsInSmallLetters(): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -186,7 +198,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   firstLetterIsCapital() : boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -211,7 +223,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatEndsWith(subString: string) : boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -233,7 +245,7 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatStartsWith(subString: string) : boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       this.handleValidationFailure()
       return false;
@@ -255,8 +267,13 @@ export class StringValidationClass extends BaseValidationClass {
   }
 
   thatIsAnEmail(): boolean {
-    const email = this.unknownData as string;
-    let result = typeof email === 'string' && email.includes('@') && email.includes('.');
+    let result = this.typeNoReport();
+    if (!result) {
+      this.handleValidationFailure()
+      return false;
+    }
+    const email = this.unknownData as string; // the power of casting compels you
+    result = typeof email === 'string' && email.includes('@') && email.includes('.');
 
     if (!result) {
       // Handle failure due to missing @ or .
@@ -300,7 +317,20 @@ export class StringValidationClass extends BaseValidationClass {
       return false;
     }
 
-    // Additional checks can be added here
+    // Preform a final regex check
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    result = emailRegex.test(email);
+    if (!result) {
+      this.problems.push({
+        what: What.unexpectedValues,
+        in: typeof this.unknownData as string,
+        is: this.unknownData as string,
+        expected: `an email address, this string does not match the email regex`,
+        ...(this.name && this.name !== '' ? { name: this.name } : {})
+      });
+      this.handleValidationFailure();
+      return false;
+    }
 
     return true;
 }
