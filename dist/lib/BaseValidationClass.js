@@ -14,13 +14,13 @@ export var What;
     What["NaNEncountered"] = "NaN encountered";
 })(What || (What = {}));
 export class BaseValidationClass {
+    //input properties
+    unknownData = undefined;
+    name = '';
+    shouldThrow = false;
+    //output properties
+    problems = [];
     constructor() {
-        //input properties
-        this.unknownData = undefined;
-        this.name = '';
-        this.shouldThrow = false;
-        //output properties
-        this.problems = [];
     } // constructor
     clearProblems() {
         this.problems = [];
@@ -93,12 +93,20 @@ export class BaseValidationClass {
     }
     isNullOrUndefined(unknownData) {
         if (unknownData === null) {
-            this.problems.push(Object.assign({ what: What.nullEncountered, in: typeof unknownData }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.nullEncountered,
+                in: typeof unknownData,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return true;
         }
         if (unknownData === undefined) {
-            this.problems.push(Object.assign({ what: What.undefinedEncountered, in: typeof unknownData }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.undefinedEncountered,
+                in: typeof unknownData,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return true;
         }

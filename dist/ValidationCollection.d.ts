@@ -10,7 +10,7 @@
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 import { ErroneousData } from './lib/BaseValidationClass';
-import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
+import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 export declare class ValidationCollection {
     private static throwErrors;
     private static validatorName;

@@ -9,11 +9,17 @@
  * @property {string} name - Name of the parameter that is being validated.
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
-import { ArrayValidationClass } from './lib/ArrayValidationClass';
-import { StringValidationClass } from './lib/StringValidationClass';
-import { NumberValidationClass } from './lib/NumberValidationClass';
-import { ObjectValidationClass } from './lib/ObjectValidationClass';
+import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
+import { StringValidationClass } from './lib/StringValidationClass.js';
+import { NumberValidationClass } from './lib/NumberValidationClass.js';
+import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
 export class ValidationCollection {
+    static throwErrors = false;
+    static validatorName = '';
+    static stringValidationClass = new StringValidationClass();
+    static numberValidationClass = new NumberValidationClass();
+    static objectValidationClass = new ObjectValidationClass();
+    static arrayValidationClass = new ArrayValidationClass();
     constructor(unknownData = undefined) {
         ValidationCollection.stringValidationClass.data = unknownData;
         ValidationCollection.numberValidationClass.data = unknownData;
@@ -376,10 +382,4 @@ export class ValidationCollection {
         return ValidationCollection.throwErrors;
     }
 }
-ValidationCollection.throwErrors = false;
-ValidationCollection.validatorName = '';
-ValidationCollection.stringValidationClass = new StringValidationClass();
-ValidationCollection.numberValidationClass = new NumberValidationClass();
-ValidationCollection.objectValidationClass = new ObjectValidationClass();
-ValidationCollection.arrayValidationClass = new ArrayValidationClass();
 //# sourceMappingURL=ValidationCollection.js.map

@@ -1,4 +1,4 @@
-import { BaseValidationClass, What } from './BaseValidationClass';
+import { BaseValidationClass, What } from './BaseValidationClass.js';
 export class ObjectValidationClass extends BaseValidationClass {
     constructor() {
         super();
@@ -15,7 +15,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         }
         const result = typeof unknownData === 'object' && !Array.isArray(unknownData);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'object', is: typeof unknownData, expected: 'object' }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedType,
+                in: 'object',
+                is: typeof unknownData,
+                expected: 'object',
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -38,7 +44,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         const dataObject = this.unknownData;
         const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
         if (dataObjectProperties.length < minimumLength) {
-            this.problems.push(Object.assign({ what: What.tooShort, in: 'object', is: dataObjectProperties.length.toString(), expected: minimumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooShort,
+                in: 'object',
+                is: dataObjectProperties.length.toString(),
+                expected: minimumLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -52,7 +64,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         const dataObject = this.unknownData;
         const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
         if (dataObjectProperties.length > maximumLength) {
-            this.problems.push(Object.assign({ what: What.tooLong, in: 'object', is: dataObjectProperties.length.toString(), expected: maximumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooLong,
+                in: 'object',
+                is: dataObjectProperties.length.toString(),
+                expected: maximumLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -66,7 +84,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         const dataObject = this.unknownData;
         const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
         if (dataObjectProperties.length !== exactLength) {
-            this.problems.push(Object.assign({ what: What.faultyLength, in: 'object', is: dataObjectProperties.length.toString(), expected: exactLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.faultyLength,
+                in: 'object',
+                is: dataObjectProperties.length.toString(),
+                expected: exactLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -81,7 +105,13 @@ export class ObjectValidationClass extends BaseValidationClass {
         const allProperties = Object.getOwnPropertyNames(dataObject);
         for (const property of allProperties) {
             if (!propertyNames.includes(property)) {
-                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: propertyNames.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedProperties,
+                    in: typeof this.unknownData,
+                    is: property,
+                    expected: propertyNames.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
                 this.handleValidationFailure();
             }
@@ -98,14 +128,25 @@ export class ObjectValidationClass extends BaseValidationClass {
         // All the valid properties must be in the object.
         for (const property of propertyNames) {
             if (!dataObject.hasOwnProperty(property)) {
-                this.problems.push(Object.assign({ what: What.missingProperties, in: typeof this.unknownData, expected: `${property} to be included` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.missingProperties,
+                    in: typeof this.unknownData,
+                    expected: `${property} to be included`,
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }
         // All the properties of the object must be in the array of valid properties.
         for (const property of allProperties) {
             if (!propertyNames.includes(property)) {
-                this.problems.push(Object.assign({ what: What.unexpectedProperties, in: typeof this.unknownData, is: property, expected: propertyNames.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedProperties,
+                    in: typeof this.unknownData,
+                    is: property,
+                    expected: propertyNames.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }
@@ -125,7 +166,13 @@ export class ObjectValidationClass extends BaseValidationClass {
             // loop through all the properties of the object, check if any of them have a value that is not in the array of sanctioned values. Type can be anything. As long as it's in the array of sanctioned values, it's ok.
             if (!sanctionedValues.includes(value)) {
                 const valueAsString = this.valueToString(value);
-                this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: valueAsString, expected: sanctionedValues.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedValues,
+                    in: typeof this.unknownData,
+                    is: valueAsString,
+                    expected: sanctionedValues.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }
@@ -146,7 +193,13 @@ export class ObjectValidationClass extends BaseValidationClass {
             const valueType = typeof value;
             if (sanctionedTypes.indexOf(valueType) === -1) {
                 const valueAsString = this.valueToString(value);
-                this.problems.push(Object.assign({ what: What.unexpectedValueTypes, in: typeof this.unknownData, is: typeof value, expected: sanctionedTypes.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedValueTypes,
+                    in: typeof this.unknownData,
+                    is: typeof value,
+                    expected: sanctionedTypes.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }

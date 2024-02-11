@@ -1,4 +1,4 @@
-import { BaseValidationClass, What } from './BaseValidationClass';
+import { BaseValidationClass, What } from './BaseValidationClass.js';
 export class StringValidationClass extends BaseValidationClass {
     constructor() {
         super();
@@ -16,7 +16,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         const result = typeof unknownData === 'string';
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'string', is: typeof unknownData, expected: 'string' }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedType,
+                in: 'string',
+                is: typeof unknownData,
+                expected: 'string',
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -39,7 +45,13 @@ export class StringValidationClass extends BaseValidationClass {
         const dataString = this.unknownData;
         result = dataString.length >= minimumLength;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.tooShort, in: typeof this.unknownData, is: `length : ${dataString.length}`, expected: `to be at least ${minimumLength} characters long` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooShort,
+                in: typeof this.unknownData,
+                is: `length : ${dataString.length}`,
+                expected: `to be at least ${minimumLength} characters long`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -54,7 +66,13 @@ export class StringValidationClass extends BaseValidationClass {
         const dataString = this.unknownData;
         result = dataString.length <= maximumLength;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.tooLong, in: typeof this.unknownData, is: `length : ${dataString.length}`, expected: `to be at most ${maximumLength} characters long` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooLong,
+                in: typeof this.unknownData,
+                is: `length : ${dataString.length}`,
+                expected: `to be at most ${maximumLength} characters long`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -69,7 +87,13 @@ export class StringValidationClass extends BaseValidationClass {
         const dataString = this.unknownData;
         result = dataString.length === exactLength;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.faultyLength, in: typeof this.unknownData, is: `length : ${dataString.length}`, expected: `to be exactly ${exactLength} characters long` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.faultyLength,
+                in: typeof this.unknownData,
+                is: `length : ${dataString.length}`,
+                expected: `to be exactly ${exactLength} characters long`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -83,7 +107,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         result = this.unknownData.includes(subString);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `${subString} to be included` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `${subString} to be included`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -99,7 +129,14 @@ export class StringValidationClass extends BaseValidationClass {
         result = !this.unknownData.includes(subString);
         const unknownString = this.unknownData;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: unknownString, at: unknownString.indexOf(subString), expected: `${subString} to not be included` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: unknownString,
+                at: unknownString.indexOf(subString),
+                expected: `${subString} to not be included`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -114,7 +151,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         result = this.unknownData.toUpperCase() === this.unknownData;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to be in capital letters` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `to be in capital letters`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -129,7 +172,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         result = this.unknownData.toLowerCase() === this.unknownData;
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to be in small letters` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `to be in small letters`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -147,7 +196,13 @@ export class StringValidationClass extends BaseValidationClass {
         const firstLetter = unknownString[0];
         result = (firstLetter.toUpperCase() === firstLetter);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: firstLetter, expected: `to be a capital letter` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: firstLetter,
+                expected: `to be a capital letter`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -162,7 +217,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         result = this.unknownData.endsWith(subString);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to end with ${subString}` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `to end with ${subString}`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -177,7 +238,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         result = this.unknownData.startsWith(subString);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to start with ${subString}` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `to start with ${subString}`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();
@@ -194,7 +261,13 @@ export class StringValidationClass extends BaseValidationClass {
         result = typeof email === 'string' && email.includes('@') && email.includes('.');
         if (!result) {
             // Handle failure due to missing @ or .
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, this string does not contain @ or .` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `an email address, this string does not contain @ or .`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -202,13 +275,25 @@ export class StringValidationClass extends BaseValidationClass {
         const dotIndex = email.lastIndexOf('.');
         // Check if there are at least 2 characters before @
         if (atIndex < 2) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, there are less than 2 characters before @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `an email address, there are less than 2 characters before @`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
         // Check if . comes after @ and not immediately
         if (dotIndex <= atIndex + 1 || dotIndex >= email.length - 2) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, . comes before @ or is immediately after @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `an email address, . comes before @ or is immediately after @`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -216,7 +301,13 @@ export class StringValidationClass extends BaseValidationClass {
         const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         result = emailRegex.test(email);
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, this string does not match the email regex` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `an email address, this string does not match the email regex`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -235,7 +326,13 @@ export class StringValidationClass extends BaseValidationClass {
         }
         catch (error) {
             result = false;
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to be a valid URL` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedValues,
+                in: typeof this.unknownData,
+                is: this.unknownData,
+                expected: `to be a valid URL`,
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
         }
         if (!result) {
             this.handleValidationFailure();

@@ -1,4 +1,4 @@
-import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass.js';
+import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass';
 
 export class ObjectValidationClass extends BaseValidationClass {
   [key: string]: any;

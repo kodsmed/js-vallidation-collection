@@ -1,8 +1,11 @@
-import { BaseValidationClass, What } from "./BaseValidationClass";
-import { StringValidationClass } from "./StringValidationClass";
-import { NumberValidationClass } from "./NumberValidationClass";
-import { ObjectValidationClass } from "./ObjectValidationClass";
+import { BaseValidationClass, What } from "./BaseValidationClass.js";
+import { StringValidationClass } from "./StringValidationClass.js";
+import { NumberValidationClass } from "./NumberValidationClass.js";
+import { ObjectValidationClass } from "./ObjectValidationClass.js";
 export class ArrayValidationClass extends BaseValidationClass {
+    stringValidator;
+    numberValidator;
+    objectValidator;
     constructor() {
         super();
         this.stringValidator = new StringValidationClass();
@@ -21,7 +24,13 @@ export class ArrayValidationClass extends BaseValidationClass {
         }
         const validArray = Array.isArray(unknownData);
         if (!validArray) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'Array', is: typeof unknownData, expected: 'Array' }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.unexpectedType,
+                in: 'Array',
+                is: typeof unknownData,
+                expected: 'Array',
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             this.handleValidationFailure();
             return false;
         }
@@ -43,7 +52,13 @@ export class ArrayValidationClass extends BaseValidationClass {
         }
         const data = this.unknownData;
         if (data.length < minimumLength) {
-            this.problems.push(Object.assign({ what: What.tooShort, in: 'Array', is: data.length.toString(), expected: minimumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooShort,
+                in: 'Array',
+                is: data.length.toString(),
+                expected: minimumLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -56,7 +71,13 @@ export class ArrayValidationClass extends BaseValidationClass {
         }
         const data = this.unknownData;
         if (data.length > maximumLength) {
-            this.problems.push(Object.assign({ what: What.tooLong, in: 'Array', is: data.length.toString(), expected: maximumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.tooLong,
+                in: 'Array',
+                is: data.length.toString(),
+                expected: maximumLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -69,7 +90,13 @@ export class ArrayValidationClass extends BaseValidationClass {
         }
         const data = this.unknownData;
         if (data.length !== exactLength) {
-            this.problems.push(Object.assign({ what: What.faultyLength, in: 'Array', is: data.length.toString(), expected: exactLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push({
+                what: What.faultyLength,
+                in: 'Array',
+                is: data.length.toString(),
+                expected: exactLength.toString(),
+                ...(this.name && this.name !== '' ? { name: this.name } : {})
+            });
             result = false;
             this.handleValidationFailure();
         }
@@ -109,7 +136,13 @@ export class ArrayValidationClass extends BaseValidationClass {
         for (let index = 0; index < dataArray.length; index++) {
             const data = dataArray[index];
             if (!sanctionedValues.includes(data)) {
-                this.problems.push(Object.assign({ what: What.unexpectedValues, in: 'Array', is: data.toString(), expected: sanctionedValues.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedValues,
+                    in: 'Array',
+                    is: data.toString(),
+                    expected: sanctionedValues.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }
@@ -132,7 +165,13 @@ export class ArrayValidationClass extends BaseValidationClass {
                 if (sanctionedTypes.includes('array') && typeof data === 'object' && Array.isArray(data)) {
                     continue;
                 }
-                this.problems.push(Object.assign({ what: What.unexpectedValueTypes, in: 'Array', is: typeof data, expected: sanctionedTypes.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
+                this.problems.push({
+                    what: What.unexpectedValueTypes,
+                    in: 'Array',
+                    is: typeof data,
+                    expected: sanctionedTypes.join(', '),
+                    ...(this.name && this.name !== '' ? { name: this.name } : {})
+                });
                 result = false;
             }
         }
@@ -179,7 +218,14 @@ export class ArrayValidationClass extends BaseValidationClass {
         return true;
     }
     recordErroneousDataType(isType, index, expectedType) {
-        const erroneousData = Object.assign({ what: What.unexpectedValueTypes, in: 'Array', is: isType, at: index, expected: expectedType }, (this.name && this.name !== '' ? { name: this.name } : {}));
+        const erroneousData = {
+            what: What.unexpectedValueTypes,
+            in: 'Array',
+            is: isType,
+            at: index,
+            expected: expectedType,
+            ...(this.name && this.name !== '' ? { name: this.name } : {})
+        };
         this.problems.push(erroneousData);
     }
 }

@@ -1,5 +1,5 @@
-import { ValidationCollection } from './ValidationCollection.js';
-import { ErroneousData } from './lib/BaseValidationClass.js';
+import { ValidationCollection } from './ValidationCollection';
+import { ErroneousData } from './lib/BaseValidationClass';
 
 const validate = (unknownData?: unknown): ValidationCollection => {
   return ValidationCollection.createInstance(unknownData);

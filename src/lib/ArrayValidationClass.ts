@@ -1,7 +1,7 @@
-import { BaseValidationClass, ErroneousData, What } from "./BaseValidationClass.js";
-import { StringValidationClass } from "./StringValidationClass.js";
-import { NumberValidationClass } from "./NumberValidationClass.js";
-import { ObjectValidationClass } from "./ObjectValidationClass.js";
+import { BaseValidationClass, ErroneousData, What } from "./BaseValidationClass";
+import { StringValidationClass } from "./StringValidationClass";
+import { NumberValidationClass } from "./NumberValidationClass";
+import { ObjectValidationClass } from "./ObjectValidationClass";
 
 
 export class ArrayValidationClass extends BaseValidationClass {

@@ -2,14 +2,14 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true, // Enforce consistent casing of file names
     "strict": true,
-    "target": "ES2015",
-    "module": "ES2015",
+    "target": "ES2022",
+    "module": "ES2022",
     "outDir": "./dist", // Output directory for compiled JavaScript
     "declaration": true, // Generate declaration files (.d.ts) for TypeScript type definitions
     "sourceMap": true,// Generate source maps (optional, but helpful for debugging)
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"], // Source files or directories to include in the compilation
+  "include": ["src/**/*.ts"], // Source files or directories to include in the compilation
   "exclude": ["node_modules"] // Exclude node_modules from the compilation
 }
