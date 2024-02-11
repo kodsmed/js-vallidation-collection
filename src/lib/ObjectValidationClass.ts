@@ -7,26 +7,12 @@ export class ObjectValidationClass extends BaseValidationClass {
     super();
   }
 
+  // exposed to interface
   type(): boolean {
-    const isInvalid = this.isNullOrUndefined(this.unknownData)
-    if (isInvalid) {
-      return false;
-    }
-    const result = typeof this.unknownData === 'object' && !Array.isArray(this.unknownData);
-    if (!result) {
-      this.problems.push({
-        what: What.unexpectedType,
-        in: 'object',
-        is: typeof this.unknownData,
-        expected: 'object',
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      });
-      this.handleValidationFailure()
-      return false;
-    }
-    return true;
+    return this.internalType(this.unknownData);
   }
 
+  // not exposed to interface
   internalType(unknownData: unknown): boolean {
     const isInvalid = this.isNullOrUndefined(unknownData)
     if (isInvalid) {
@@ -47,8 +33,18 @@ export class ObjectValidationClass extends BaseValidationClass {
     return true;
   }
 
+  // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length without errors
+  // if we use the type() method, it will report errors, and we don't want that in this case
+  typeNoReport(): boolean {
+    const isInvalid = this.isNullOrUndefined(this.unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    return typeof this.unknownData === 'object' && !Array.isArray(this.unknownData);
+  }
+
   withMinimumLength(minimumLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -69,7 +65,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   withMaximumLength(maximumLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -90,7 +86,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   withExactLength(exactLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -111,7 +107,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   thatMayHaveProperties(propertyNames: Array<string>): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -135,7 +131,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   thatMustHaveProperties (propertyNames: Array<string>): boolean {
-    let result = this.type()
+    let result = this.typeNoReport()
     if (!result) {
       return false
     }
@@ -175,7 +171,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   thatMustHaveSanctionedValues(sanctionedValues: Array<any>): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
@@ -203,7 +199,7 @@ export class ObjectValidationClass extends BaseValidationClass {
   }
 
   thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }

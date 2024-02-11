@@ -15,27 +15,12 @@ export class ArrayValidationClass extends BaseValidationClass {
     this.objectValidator = new ObjectValidationClass()
   }
 
+  // exposed to interface
   type(): boolean {
-    const isInvalid = this.isNullOrUndefined(this.unknownData)
-    if (isInvalid) {
-      return false;
-    }
-    const validArray  = Array.isArray(this.unknownData);
-
-    if (!validArray) {
-      this.problems.push({
-        what: What.unexpectedType,
-        in: 'Array',
-        is: typeof this.unknownData,
-        expected: 'Array',
-        ...(this.name && this.name !== '' ? { name: this.name } : {})
-      });
-      this.handleValidationFailure()
-      return false;
-    }
-    return true;
+    return this.internalType(this.unknownData)
   }
 
+  // not exposed to interface
   internalType(unknownData: unknown): boolean {
     const isInvalid = this.isNullOrUndefined(unknownData)
     if (isInvalid) {
@@ -57,8 +42,18 @@ export class ArrayValidationClass extends BaseValidationClass {
     return true;
   }
 
+  // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length of the array without errors
+  // if we use the type() method, it will report errors, and we don't want that in this case
+  typeNoReport(): boolean {
+    const isInvalid = this.isNullOrUndefined(this.unknownData)
+    if (isInvalid) {
+      return false;
+    }
+    return Array.isArray(this.unknownData);
+  }
+
   withMinimumLength(minimumLength: number): boolean {
-    let result = this.type();
+    let result = this.typeNoReport();
     if (!result) {
       return false;
     }
