@@ -74,7 +74,10 @@ export class BaseValidationClass {
         return resultString;
     }
     get hasProblems() {
-        return this.problems.length > 0 ? true : false;
+        if (this.problems.length > 0) {
+            return true;
+        }
+        return false;
     }
     get shouldThrowErrors() {
         return this.shouldThrow;

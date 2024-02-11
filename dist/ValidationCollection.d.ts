@@ -9,7 +9,7 @@
  * @property {string} name - Name of the parameter that is being validated.
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
-import { ErroneousData } from './lib/BaseValidationClass.js';
+import { ErroneousData } from './lib/BaseValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject.js';
 export declare class ValidationCollection {
     private static throwErrors;

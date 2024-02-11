@@ -1,4 +1,4 @@
-import { BaseValidationClass } from "./BaseValidationClass.js";
+import { BaseValidationClass } from "./BaseValidationClass";
 export declare class ArrayValidationClass extends BaseValidationClass {
     private stringValidator;
     private numberValidator;
@@ -6,6 +6,7 @@ export declare class ArrayValidationClass extends BaseValidationClass {
     constructor();
     type(): boolean;
     internalType(unknownData: unknown): boolean;
+    typeNoReport(): boolean;
     withMinimumLength(minimumLength: number): boolean;
     withMaximumLength(maximumLength: number): boolean;
     withExactLength(exactLength: number): boolean;

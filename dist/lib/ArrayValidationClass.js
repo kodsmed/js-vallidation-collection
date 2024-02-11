@@ -1,7 +1,7 @@
-import { BaseValidationClass, What } from "./BaseValidationClass.js";
-import { StringValidationClass } from "./StringValidationClass.js";
-import { NumberValidationClass } from "./NumberValidationClass.js";
-import { ObjectValidationClass } from "./ObjectValidationClass.js";
+import { BaseValidationClass, What } from "./BaseValidationClass";
+import { StringValidationClass } from "./StringValidationClass";
+import { NumberValidationClass } from "./NumberValidationClass";
+import { ObjectValidationClass } from "./ObjectValidationClass";
 export class ArrayValidationClass extends BaseValidationClass {
     constructor() {
         super();
@@ -9,19 +9,11 @@ export class ArrayValidationClass extends BaseValidationClass {
         this.numberValidator = new NumberValidationClass();
         this.objectValidator = new ObjectValidationClass();
     }
+    // exposed to interface
     type() {
-        const isInvalid = this.isNullOrUndefined(this.unknownData);
-        if (isInvalid) {
-            return false;
-        }
-        const validArray = Array.isArray(this.unknownData);
-        if (!validArray) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'Array', is: typeof this.unknownData, expected: 'Array' }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            this.handleValidationFailure();
-            return false;
-        }
-        return true;
+        return this.internalType(this.unknownData);
     }
+    // not exposed to interface
     internalType(unknownData) {
         const isInvalid = this.isNullOrUndefined(unknownData);
         if (isInvalid) {
@@ -35,8 +27,17 @@ export class ArrayValidationClass extends BaseValidationClass {
         }
         return true;
     }
+    // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length of the array without errors
+    // if we use the type() method, it will report errors, and we don't want that in this case
+    typeNoReport() {
+        const isInvalid = this.isNullOrUndefined(this.unknownData);
+        if (isInvalid) {
+            return false;
+        }
+        return Array.isArray(this.unknownData);
+    }
     withMinimumLength(minimumLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -127,6 +128,10 @@ export class ArrayValidationClass extends BaseValidationClass {
         for (let index = 0; index < dataArray.length; index++) {
             const data = dataArray[index];
             if (!sanctionedTypes.includes(typeof data)) {
+                // special case, Array is an object, so we need to check for it.
+                if (sanctionedTypes.includes('array') && typeof data === 'object' && Array.isArray(data)) {
+                    continue;
+                }
                 this.problems.push(Object.assign({ what: What.unexpectedValueTypes, in: 'Array', is: typeof data, expected: sanctionedTypes.join(', ') }, (this.name && this.name !== '' ? { name: this.name } : {})));
                 result = false;
             }

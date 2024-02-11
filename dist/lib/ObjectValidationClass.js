@@ -1,21 +1,13 @@
-import { BaseValidationClass, What } from './BaseValidationClass.js';
+import { BaseValidationClass, What } from './BaseValidationClass';
 export class ObjectValidationClass extends BaseValidationClass {
     constructor() {
         super();
     }
+    // exposed to interface
     type() {
-        const isInvalid = this.isNullOrUndefined(this.unknownData);
-        if (isInvalid) {
-            return false;
-        }
-        const result = typeof this.unknownData === 'object' && !Array.isArray(this.unknownData);
-        if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'object', is: typeof this.unknownData, expected: 'object' }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            this.handleValidationFailure();
-            return false;
-        }
-        return true;
+        return this.internalType(this.unknownData);
     }
+    // not exposed to interface
     internalType(unknownData) {
         const isInvalid = this.isNullOrUndefined(unknownData);
         if (isInvalid) {
@@ -29,22 +21,31 @@ export class ObjectValidationClass extends BaseValidationClass {
         }
         return true;
     }
+    // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length without errors
+    // if we use the type() method, it will report errors, and we don't want that in this case
+    typeNoReport() {
+        const isInvalid = this.isNullOrUndefined(this.unknownData);
+        if (isInvalid) {
+            return false;
+        }
+        return typeof this.unknownData === 'object' && !Array.isArray(this.unknownData);
+    }
     withMinimumLength(minimumLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
         const dataObject = this.unknownData;
         const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
         if (dataObjectProperties.length < minimumLength) {
-            this.problems.push(Object.assign({ what: What.tooShort, in: 'object', is: dataObjectProperties.length.toString(), expected: this.minimumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push(Object.assign({ what: What.tooShort, in: 'object', is: dataObjectProperties.length.toString(), expected: minimumLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
             result = false;
             this.handleValidationFailure();
         }
         return result;
     }
     withMaximumLength(maximumLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -58,34 +59,21 @@ export class ObjectValidationClass extends BaseValidationClass {
         return result;
     }
     withExactLength(exactLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
         const dataObject = this.unknownData;
         const dataObjectProperties = Object.getOwnPropertyNames(dataObject);
         if (dataObjectProperties.length !== exactLength) {
-            this.problems.push(Object.assign({ what: What.faultyLength, in: 'object', is: dataObjectProperties.length.toString(), expected: this.exactLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.problems.push(Object.assign({ what: What.faultyLength, in: 'object', is: dataObjectProperties.length.toString(), expected: exactLength.toString() }, (this.name && this.name !== '' ? { name: this.name } : {})));
             result = false;
-            this.handleValidationFailure();
-        }
-        return result;
-    }
-    thatIsInstanceOf(classType) {
-        let isObject = this.type();
-        if (!isObject) {
-            return false;
-        }
-        let result = true;
-        if (!(this.unknownData instanceof classType)) {
-            result = false;
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: typeof this.unknownData, is: typeof this.unknownData, expected: classType.name }, (this.name && this.name !== '' ? { name: this.name } : {})));
             this.handleValidationFailure();
         }
         return result;
     }
     thatMayHaveProperties(propertyNames) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -101,7 +89,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         return result;
     }
     thatMustHaveProperties(propertyNames) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -127,7 +115,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         return result;
     }
     thatMustHaveSanctionedValues(sanctionedValues) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -147,7 +135,7 @@ export class ObjectValidationClass extends BaseValidationClass {
         return result;
     }
     thatMustHaveSanctionedValueTypes(sanctionedTypes) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }

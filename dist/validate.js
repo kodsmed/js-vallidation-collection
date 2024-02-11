@@ -1,4 +1,4 @@
-import { ValidationCollection } from './ValidationCollection.js';
+import { ValidationCollection } from './ValidationCollection';
 const validate = (unknownData) => {
     return ValidationCollection.createInstance(unknownData);
 };
@@ -13,6 +13,12 @@ validate.report = function () {
 };
 validate.reportAsString = function () {
     return ValidationCollection.reportAsString();
+};
+validate.clearReports = function () {
+    ValidationCollection.clearProblems();
+};
+validate.confirm = function () {
+    return ValidationCollection.confirm();
 };
 export default validate;
 //# sourceMappingURL=validate.js.map

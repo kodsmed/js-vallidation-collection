@@ -1,27 +1,13 @@
-import { BaseValidationClass, What } from './BaseValidationClass.js';
+import { BaseValidationClass, What } from './BaseValidationClass';
 export class NumberValidationClass extends BaseValidationClass {
     constructor() {
         super();
     }
+    // exposed to interface
     type() {
-        const invalidType = this.isNullOrUndefined(this.unknownData);
-        if (invalidType) {
-            this.handleValidationFailure();
-            return false;
-        }
-        const isNumber = typeof this.unknownData === 'number';
-        if (!isNumber) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'number', is: typeof this.unknownData, expected: 'number' }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            this.handleValidationFailure();
-            return false;
-        }
-        if (isNaN(this.unknownData)) {
-            this.problems.push(Object.assign({ what: What.NaNEncountered, in: 'number', is: 'NaN', expected: 'number' }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            this.handleValidationFailure();
-            return false;
-        }
-        return true;
+        return this.internalType(this.unknownData);
     }
+    // not exposed to interface
     internalType(unknownData) {
         const invalidType = this.isNullOrUndefined(unknownData);
         if (invalidType) {
@@ -41,8 +27,17 @@ export class NumberValidationClass extends BaseValidationClass {
         }
         return true;
     }
+    // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length without errors
+    // if we use the type() method, it will report errors, and we don't want that in this case
+    typeNoReport() {
+        const isInvalid = this.isNullOrUndefined(this.unknownData);
+        if (isInvalid) {
+            return false;
+        }
+        return (typeof this.unknownData === 'number');
+    }
     thatIsPositive() {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -55,7 +50,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsNegative() {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -70,7 +65,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsBetweenMinMax(minimumNumberValue, maximumNumberValue) {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -91,7 +86,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsOverMinimum(minimumValue) {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -106,7 +101,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsUnderMaximum(maximumValue) {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -121,7 +116,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsExactly(exactValue) {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -137,7 +132,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsEven() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -152,7 +147,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsOdd() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -167,7 +162,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsNotZero() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -182,7 +177,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsNotOne() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -197,7 +192,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsNotNegativeOne() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -212,7 +207,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsEvenlyDivisible() {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;
@@ -246,7 +241,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsAPrimeNumber() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -262,7 +257,7 @@ export class NumberValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsNotAPrimeNumber() {
-        let isNumber = this.type();
+        let isNumber = this.typeNoReport();
         if (!isNumber) {
             this.handleValidationFailure();
             return false;

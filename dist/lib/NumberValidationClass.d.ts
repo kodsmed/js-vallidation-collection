@@ -1,8 +1,9 @@
-import { BaseValidationClass } from './BaseValidationClass.js';
+import { BaseValidationClass } from './BaseValidationClass';
 export declare class NumberValidationClass extends BaseValidationClass {
     constructor();
     type(): boolean;
     internalType(unknownData: unknown): boolean;
+    typeNoReport(): boolean;
     thatIsPositive(): boolean;
     thatIsNegative(): boolean;
     thatIsBetweenMinMax(minimumNumberValue: number, maximumNumberValue: number): boolean;

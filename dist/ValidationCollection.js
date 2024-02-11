@@ -9,10 +9,10 @@
  * @property {string} name - Name of the parameter that is being validated.
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
-import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
-import { StringValidationClass } from './lib/StringValidationClass.js';
-import { NumberValidationClass } from './lib/NumberValidationClass.js';
-import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
+import { ArrayValidationClass } from './lib/ArrayValidationClass';
+import { StringValidationClass } from './lib/StringValidationClass';
+import { NumberValidationClass } from './lib/NumberValidationClass';
+import { ObjectValidationClass } from './lib/ObjectValidationClass';
 export class ValidationCollection {
     constructor(unknownData = undefined) {
         ValidationCollection.stringValidationClass.data = unknownData;
@@ -50,11 +50,15 @@ export class ValidationCollection {
             }
             return false;
         }
-        return true;
+        else {
+            return true;
+        }
     }
     isString() {
         const self = ValidationCollection;
+        self.stringValidationClass.type();
         const callableObject = Object.assign(function () {
+            console.log('self.stringValidationClass', self.stringValidationClass);
             self.stringValidationClass.type();
             return callableObject;
         }, {
@@ -119,24 +123,16 @@ export class ValidationCollection {
             }
         }, {
             confirm() {
-                const problemsEncountered = self.arrayValidationClass.hasProblems
-                    || self.objectValidationClass.hasProblems
-                    || self.stringValidationClass.hasProblems
-                    || self.numberValidationClass.hasProblems;
-                if (problemsEncountered) {
-                    if (self.throwsErrors) {
-                        throw new Error(self.reportAsString());
-                    }
-                    return false;
-                }
-                return true;
+                return !self.stringValidationClass.hasProblems;
             }
         });
         return callableObject;
     }
     isNumber() {
         const self = ValidationCollection;
+        self.numberValidationClass.type();
         const callableObject = Object.assign(function () {
+            console.log('self.numberValidationClass', self.numberValidationClass);
             self.numberValidationClass.type();
             return callableObject;
         }, {
@@ -190,11 +186,6 @@ export class ValidationCollection {
                 return callableObject;
             }
         }, {
-            thatIsNotNegativeOne() {
-                self.numberValidationClass.thatIsNotNegativeOne();
-                return callableObject;
-            }
-        }, {
             thatIsEvenlyDivisible() {
                 self.numberValidationClass.thatIsEvenlyDivisible();
                 return callableObject;
@@ -216,23 +207,14 @@ export class ValidationCollection {
             }
         }, {
             confirm() {
-                const problemsEncountered = self.arrayValidationClass.hasProblems
-                    || self.objectValidationClass.hasProblems
-                    || self.stringValidationClass.hasProblems
-                    || self.numberValidationClass.hasProblems;
-                if (problemsEncountered) {
-                    if (self.throwsErrors) {
-                        throw new Error(self.reportAsString());
-                    }
-                    return false;
-                }
-                return true;
+                return !self.numberValidationClass.hasProblems;
             }
         });
         return callableObject;
     }
     isObject() {
         const self = ValidationCollection;
+        self.objectValidationClass.type();
         const callableObject = Object.assign(function () {
             self.objectValidationClass.type();
             return callableObject;
@@ -278,23 +260,14 @@ export class ValidationCollection {
             }
         }, {
             confirm() {
-                const problemsEncountered = self.arrayValidationClass.hasProblems
-                    || self.objectValidationClass.hasProblems
-                    || self.stringValidationClass.hasProblems
-                    || self.numberValidationClass.hasProblems;
-                if (problemsEncountered) {
-                    if (self.throwsErrors) {
-                        throw new Error(self.reportAsString());
-                    }
-                    return false;
-                }
-                return true;
+                return !self.objectValidationClass.hasProblems;
             }
         });
         return callableObject;
     }
     isArray() {
         const self = ValidationCollection;
+        self.arrayValidationClass.type();
         const callableObject = Object.assign(function () {
             self.arrayValidationClass.type();
             return callableObject;
@@ -365,17 +338,7 @@ export class ValidationCollection {
             }
         }, {
             confirm() {
-                const problemsEncountered = self.arrayValidationClass.hasProblems
-                    || self.objectValidationClass.hasProblems
-                    || self.stringValidationClass.hasProblems
-                    || self.numberValidationClass.hasProblems;
-                if (problemsEncountered) {
-                    if (self.throwsErrors) {
-                        throw new Error(self.reportAsString());
-                    }
-                    return false;
-                }
-                return true;
+                return !self.arrayValidationClass.hasProblems;
             }
         });
         return callableObject;

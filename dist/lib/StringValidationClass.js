@@ -1,22 +1,13 @@
-import { BaseValidationClass, What } from './BaseValidationClass.js';
+import { BaseValidationClass, What } from './BaseValidationClass';
 export class StringValidationClass extends BaseValidationClass {
     constructor() {
         super();
     }
+    // exposed to interface
     type() {
-        const invalid = this.isNullOrUndefined(this.unknownData);
-        if (invalid) {
-            this.handleValidationFailure();
-            return false;
-        }
-        const result = typeof this.unknownData === 'string';
-        if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedType, in: 'string', is: typeof this.unknownData, expected: 'string' }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            this.handleValidationFailure();
-            return false;
-        }
-        return true;
+        return this.internalType(this.unknownData);
     }
+    // not exposed to interface
     internalType(unknownData) {
         const invalid = this.isNullOrUndefined(unknownData);
         if (invalid) {
@@ -31,8 +22,17 @@ export class StringValidationClass extends BaseValidationClass {
         }
         return true;
     }
+    // this is a type check that does not report errors, it is used in other methods just to make sure we can check the length without errors
+    // if we use the type() method, it will report errors, and we don't want that in this case
+    typeNoReport() {
+        const isInvalid = this.isNullOrUndefined(this.unknownData);
+        if (isInvalid) {
+            return false;
+        }
+        return typeof this.unknownData === 'string';
+    }
     withMinimumLength(minimumLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -47,7 +47,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     withMaximumLength(maximumLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -62,7 +62,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     withExactLength(exactLength) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -77,7 +77,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatIncludes(subString) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             return false;
         }
@@ -91,7 +91,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatDoesNotIncludes(subString) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -107,7 +107,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsInCapitalLetters() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -122,7 +122,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsInSmallLetters() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -137,7 +137,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     firstLetterIsCapital() {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -155,7 +155,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatEndsWith(subString) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -170,7 +170,7 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatStartsWith(subString) {
-        let result = this.type();
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
@@ -185,42 +185,42 @@ export class StringValidationClass extends BaseValidationClass {
         return result;
     }
     thatIsAnEmail() {
-        let result = this.type();
-        let partResult = false;
+        let result = this.typeNoReport();
         if (!result) {
             this.handleValidationFailure();
             return false;
         }
-        result = this.unknownData.includes('@');
+        const email = this.unknownData; // the power of casting compels you
+        result = typeof email === 'string' && email.includes('@') && email.includes('.');
         if (!result) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to include @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
-        }
-        result && (partResult = this.unknownData.indexOf('@') > 2);
-        if (!partResult) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to have at least 2 characters before the @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
-        }
-        ;
-        result && (partResult = this.unknownData.includes('.'));
-        if (!partResult) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to include .` }, (this.name && this.name !== '' ? { name: this.name } : {})));
-        }
-        if (this.unknownData.lastIndexOf('.') > this.unknownData.length - 3) {
-            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to have at least 2 characters after the .` }, (this.name && this.name !== '' ? { name: this.name } : {})));
-            result = false;
-        }
-        if (this.unknownData && this.unknownData.includes('@') && this.unknownData.includes('.')) {
-            const email = this.unknownData;
-            const atIndex = email.indexOf('@');
-            const dotIndex = email.lastIndexOf('.');
-            if (atIndex > dotIndex) {
-                this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `to have a . after the @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
-                result = false;
-            }
-        }
-        if (!result) {
+            // Handle failure due to missing @ or .
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, this string does not contain @ or .` }, (this.name && this.name !== '' ? { name: this.name } : {})));
             this.handleValidationFailure();
+            return false;
         }
-        return result;
+        const atIndex = email.indexOf('@');
+        const dotIndex = email.lastIndexOf('.');
+        // Check if there are at least 2 characters before @
+        if (atIndex < 2) {
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, there are less than 2 characters before @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.handleValidationFailure();
+            return false;
+        }
+        // Check if . comes after @ and not immediately
+        if (dotIndex <= atIndex + 1 || dotIndex >= email.length - 2) {
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, . comes before @ or is immediately after @` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.handleValidationFailure();
+            return false;
+        }
+        // Preform a final regex check
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        result = emailRegex.test(email);
+        if (!result) {
+            this.problems.push(Object.assign({ what: What.unexpectedValues, in: typeof this.unknownData, is: this.unknownData, expected: `an email address, this string does not match the email regex` }, (this.name && this.name !== '' ? { name: this.name } : {})));
+            this.handleValidationFailure();
+            return false;
+        }
+        return true;
     }
     thatIsAUrl() {
         if (!this.type()) {
