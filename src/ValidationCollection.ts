@@ -10,11 +10,11 @@
  * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
-import { ErroneousData } from './lib/BaseValidationClass';
-import { ArrayValidationClass } from './lib/ArrayValidationClass';
-import { StringValidationClass } from './lib/StringValidationClass';
-import { NumberValidationClass } from './lib/NumberValidationClass';
-import { ObjectValidationClass } from './lib/ObjectValidationClass';
+import { ErroneousData } from './lib/BaseValidationClass.js';
+import { ArrayValidationClass } from './lib/ArrayValidationClass.js';
+import { StringValidationClass } from './lib/StringValidationClass.js';
+import { NumberValidationClass } from './lib/NumberValidationClass.js';
+import { ObjectValidationClass } from './lib/ObjectValidationClass.js';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject, Callable } from './interface/CallableObject.js';
 
 export class ValidationCollection {

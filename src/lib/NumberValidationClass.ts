@@ -1,4 +1,4 @@
-import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass';
+import { BaseValidationClass, ErroneousData, What } from './BaseValidationClass.js';
 
 
 export class NumberValidationClass extends BaseValidationClass {
