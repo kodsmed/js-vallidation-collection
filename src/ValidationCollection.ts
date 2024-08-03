@@ -6,8 +6,6 @@
  * @version 2.0.0
  * @author Jimmy "Kodsmed" Karlsson
  *
- * @property {string} name - Name of the parameter that is being validated.
- * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 
 import { ErroneousData } from './lib/BaseValidationClass';
@@ -19,6 +17,7 @@ import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableSt
 
 export class ValidationCollection {
   private static throwErrors: boolean = false
+  private static newInstancesClearReports: boolean = false
   private static validatorName: string = ''
   private static stringValidationClass: StringValidationClass = new StringValidationClass()
   private static numberValidationClass: NumberValidationClass = new NumberValidationClass()
@@ -35,6 +34,9 @@ export class ValidationCollection {
   }
 
   static createInstance(unknownData: unknown = undefined): ValidationCollection {
+    if (ValidationCollection.newInstancesClearReports) {
+      ValidationCollection.clearProblems()
+    }
     return new ValidationCollection(unknownData)
   }
 
@@ -44,6 +46,10 @@ export class ValidationCollection {
     ValidationCollection.numberValidationClass.shouldThrowErrors = shouldThrow
     ValidationCollection.objectValidationClass.shouldThrowErrors = shouldThrow
     ValidationCollection.arrayValidationClass.shouldThrowErrors = shouldThrow
+  }
+
+  static setNewInstanceClearsReports(shouldClear: boolean) {
+    ValidationCollection.newInstancesClearReports = shouldClear
   }
 
   static setName(name: string) {
@@ -310,12 +316,6 @@ export class ValidationCollection {
       {
         thatMustHaveSanctionedValueTypes(sanctionedTypes: Array<string>): CallableObjectValidatorObject {
           self.objectValidationClass.thatMustHaveSanctionedValueTypes(sanctionedTypes)
-          return callableObject
-        }
-      },
-      {
-        thatIsInstanceOf(classType: any): CallableObjectValidatorObject {
-          self.objectValidationClass.thatIsInstanceOf(classType)
           return callableObject
         }
       },

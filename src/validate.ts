@@ -13,6 +13,10 @@ validate.setThrowable = function (shouldThrow: boolean): void {
   ValidationCollection.setThrowsErrors(shouldThrow);
 };
 
+validate.setNewInstanceClearsReports = function (shouldClear: boolean): void {
+  ValidationCollection.setNewInstanceClearsReports(shouldClear);
+}
+
 validate.report = function (): Array<ErroneousData> {
   return ValidationCollection.report();
 };
