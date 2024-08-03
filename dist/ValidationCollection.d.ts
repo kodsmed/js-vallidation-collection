@@ -6,13 +6,12 @@
  * @version 2.0.0
  * @author Jimmy "Kodsmed" Karlsson
  *
- * @property {string} name - Name of the parameter that is being validated.
- * @property {boolean} shouldThrow - If true, the validation will throw an error if it fails.
  */
 import { ErroneousData } from './lib/BaseValidationClass';
 import { CallableArrayValidatorObject, CallableNumberValidatorObject, CallableStringValidatorObject, CallableObjectValidatorObject } from './interface/CallableObject';
 export declare class ValidationCollection {
     private static throwErrors;
+    private static newInstancesClearReports;
     private static validatorName;
     private static stringValidationClass;
     private static numberValidationClass;
@@ -21,6 +20,7 @@ export declare class ValidationCollection {
     constructor(unknownData?: unknown);
     static createInstance(unknownData?: unknown): ValidationCollection;
     static setThrowsErrors(shouldThrow: boolean): void;
+    static setNewInstanceClearsReports(shouldClear: boolean): void;
     static setName(name: string): void;
     static confirm(): boolean;
     isString(): CallableStringValidatorObject;

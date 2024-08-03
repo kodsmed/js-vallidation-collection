@@ -4,6 +4,7 @@ declare const validate: {
     (unknownData?: unknown): ValidationCollection;
     setName(name: string): void;
     setThrowable(shouldThrow: boolean): void;
+    setNewInstanceClearsReports(shouldClear: boolean): void;
     report(): Array<ErroneousData>;
     reportAsString(): string;
     clearReports(): void;
